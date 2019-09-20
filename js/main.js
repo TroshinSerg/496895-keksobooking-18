@@ -1,0 +1,109 @@
+'use strict';
+
+var map = document.querySelector('.map');
+var mapPinList = document.querySelector('.map__pins');
+var mapPinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
+var fragment = document.createDocumentFragment();
+
+var SIMILAR_AD_COUNT = 8;
+var MAP_WIDTH = map.offsetWidth;
+var MAP_MIN_Y = 130;
+var MAP_MAX_Y = 630;
+var MAP_PIN_HALF_WIDTH = 25;
+var MAP_PIN_HEIGHT = 70;
+var MIN_COUNT_ROOM = 1;
+var MAX_COUNT_ROOM = 10;
+var MIN_PRICE = 1000;
+var MAX_PRICE = 25000;
+var OFFER_TYPES = ['palace', 'flat', 'house', 'bungalo'];
+var OFFER_TIMES = ['12:00', '13:00', '14:00'];
+var OFFER_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
+var OFFER_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
+
+function getRandomNum(min, max) {
+  return Math.floor(min + Math.random() * (max + 1 - min));
+}
+
+function getRandomElement(array, remove) {
+  var randomIndex = Math.floor(Math.random() * array.length);
+  var randomElement = array[randomIndex];
+
+  if (remove) {
+    array.splice(randomIndex, randomIndex + 1);
+  }
+
+  return randomElement;
+}
+
+function createRandomArray(array) {
+  var arr = array.slice();
+  var randomArray = [];
+
+  for (var i = 0; i < getRandomNum(1, arr.length); i++) {
+    randomArray.push(getRandomElement(arr, true));
+  }
+
+  return randomArray;
+}
+
+function getMocks(count) {
+  var arr = [];
+
+  for (var i = 0; i < count; i++) {
+    var serialNumber = i >= 10 ? i.toString() : '0' + (i + 1).toString();
+    var locationX = getRandomNum(MAP_PIN_HALF_WIDTH, MAP_WIDTH - MAP_PIN_HALF_WIDTH);
+    var locationY = getRandomNum(MAP_MIN_Y + MAP_PIN_HEIGHT, MAP_MAX_Y);
+
+    arr.push({
+      'author': {
+        'avatar': 'img/avatars/user' + serialNumber + '.png'
+      },
+
+      'offer': {
+        'title': 'Заголовок предложения №' + serialNumber,
+        'address': locationX + ', ' + locationY,
+        'price': getRandomNum(MIN_PRICE, MAX_PRICE),
+        'type': getRandomElement(OFFER_TYPES),
+        'rooms': getRandomNum(MIN_COUNT_ROOM, MAX_COUNT_ROOM),
+        'guests': getRandomNum(0, MAX_COUNT_ROOM),
+        'checkin': getRandomElement(OFFER_TIMES),
+        'checkout': getRandomElement(OFFER_TIMES),
+        'features': createRandomArray(OFFER_FEATURES),
+        'description': 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Itaque dignissimos optio nesciunt sapiente tempore totam. Provident velit quas eligendi tempora molestias necessitatibus fugiat natus odit sunt, numquam unde? Saepe, assumenda!',
+        'photos': createRandomArray(OFFER_PHOTOS)
+      },
+
+      'location': {
+        'x': locationX,
+        'y': locationY
+      }
+    });
+  }
+
+  return arr;
+}
+
+function createPin(obj) {
+  var clonedPin = mapPinTemplate.cloneNode(true);
+  var clonedPinAuthor = clonedPin.querySelector('img');
+
+  clonedPin.style.left = obj.location.x + 'px';
+  clonedPin.style.top = obj.location.y + 'px';
+  clonedPinAuthor.src = obj.author.avatar;
+  clonedPinAuthor.alt = obj.offer.title;
+
+  return clonedPin;
+}
+
+function drawPins(parentNode, count) {
+  var pinsData = getMocks(count);
+
+  for (var i = 0; i < count; i++) {
+    fragment.appendChild(createPin(pinsData[i]));
+  }
+
+  parentNode.appendChild(fragment);
+}
+
+map.classList.remove('map--faded');
+drawPins(mapPinList, SIMILAR_AD_COUNT);
