@@ -3,7 +3,6 @@
 var MAP = document.querySelector('.map');
 var MAP_PIN_LIST = document.querySelector('.map__pins');
 var MAP_PIN_TEMPLATE = document.querySelector('#pin').content.querySelector('.map__pin');
-var fragment = document.createDocumentFragment();
 
 var SIMILAR_AD_COUNT = 8;
 var MAP_WIDTH = MAP.offsetWidth;
@@ -26,13 +25,7 @@ function getRandomNum(min, max) {
 
 function getRandomElement(array, remove) {
   var randomIndex = Math.floor(Math.random() * array.length);
-  var randomElement = array[randomIndex];
-
-  if (remove) {
-    array.splice(randomIndex, randomIndex + 1);
-  }
-
-  return randomElement;
+  return (remove) ? array.splice(randomIndex, 1).toString() : array[randomIndex];
 }
 
 function createRandomArray(array) {
@@ -48,14 +41,14 @@ function createRandomArray(array) {
 }
 
 function getMocks(count) {
-  var arr = [];
+  var mocks = [];
 
   for (var i = 0; i < count; i++) {
     var serialNumber = String(i + 1).padStart(2, '0');
     var locationX = getRandomNum(MAP_PIN_HALF_WIDTH, MAP_WIDTH - MAP_PIN_HALF_WIDTH);
     var locationY = getRandomNum(MAP_MIN_Y + MAP_PIN_HEIGHT, MAP_MAX_Y);
 
-    arr.push({
+    mocks.push({
       'author': {
         'avatar': 'img/avatars/user' + serialNumber + '.png'
       },
@@ -81,7 +74,7 @@ function getMocks(count) {
     });
   }
 
-  return arr;
+  return mocks;
 }
 
 function createPin(obj) {
@@ -96,15 +89,15 @@ function createPin(obj) {
   return clonedPin;
 }
 
-function drawPins(parentNode, count) {
-  var pinsData = getMocks(count);
+function drawPins(parentNode, mocks) {
+  var fragment = document.createDocumentFragment();
 
-  for (var i = 0; i < count; i++) {
-    fragment.appendChild(createPin(pinsData[i]));
+  for (var i = 0; i < mocks.length; i++) {
+    fragment.appendChild(createPin(mocks[i]));
   }
 
   parentNode.appendChild(fragment);
 }
 
 MAP.classList.remove('map--faded');
-drawPins(MAP_PIN_LIST, SIMILAR_AD_COUNT);
+drawPins(MAP_PIN_LIST, getMocks(SIMILAR_AD_COUNT));
