@@ -118,17 +118,6 @@ function getEndingWord(num, endings) {
   return endings[0];
 }
 
-var SELECTORS = {
-  clonedMapPopup: MAP_CARD_TEMPLATE.cloneNode(true),
-  mapPopupType: this.clonedMapPopup.querySelector('.popup__type'),
-  mapPopupFeatureList: this.clonedMapPopup.querySelector('.popup__features'),
-  mapPopupFeatures: this.clonedMapPopup.querySelectorAll('.popup__feature'),
-  mapPopupPhotoList: this.clonedMapPopup.querySelector('.popup__photos'),
-  mapPopupPhoto: this.clonedMapPopup.querySelector('.popup__photo')
-
-}
-
-
 function createMapPopup(array) {
   var fragment = document.createDocumentFragment();
   var clonedMapPopup = MAP_CARD_TEMPLATE.cloneNode(true);
