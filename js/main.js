@@ -16,9 +16,18 @@ var MAX_COUNT_ROOM = 10;
 var MIN_PRICE = 1000;
 var MAX_PRICE = 25000;
 var OFFER_TYPES = ['palace', 'flat', 'house', 'bungalo'];
+var OFFER_TYPES_LIBS = {
+  palace: 'Дворец',
+  flat: 'Квартира',
+  house: 'Дом',
+  bungalo: 'Бунгало'
+};
 var OFFER_TIMES = ['12:00', '13:00', '14:00'];
 var OFFER_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var OFFER_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
+var VARIANTS_WORD_ROOMS = ['комнаты', 'комната', 'комнат'];
+var VARIANTS_WORD_GUESTS = ['гостей', 'гостя', 'гостей'];
+
 
 function getRandomNum(min, max) {
   return Math.floor(min + Math.random() * (max + 1 - min));
@@ -30,12 +39,12 @@ function getRandomElement(array, remove) {
 }
 
 function createRandomArray(array) {
-  var arr = array.slice();
+  var arrayCopy = array.slice();
   var randomArray = [];
-  var counter = getRandomNum(1, arr.length);
+  var counter = getRandomNum(1, arrayCopy.length);
 
   for (var i = 0; i < counter; i++) {
-    randomArray.push(getRandomElement(arr, true));
+    randomArray.push(getRandomElement(arrayCopy, true));
   }
 
   return randomArray;
@@ -101,14 +110,24 @@ function drawPins(parentNode, mocks) {
 }
 
 function getEndingWord(num, endings) {
-  if (+num % 100 === 0 || +num % 100 > 4 && +num % 100 !== 1) {
+  if (num % 100 === 0 || num % 100 > 4 && num % 100 !== 1) {
     return endings[2];
-  } else if (+num % 100 === 1) {
+  } else if (num % 100 === 1) {
     return endings[1];
   }
-
   return endings[0];
 }
+
+var SELECTORS = {
+  clonedMapPopup: MAP_CARD_TEMPLATE.cloneNode(true),
+  mapPopupType: this.clonedMapPopup.querySelector('.popup__type'),
+  mapPopupFeatureList: this.clonedMapPopup.querySelector('.popup__features'),
+  mapPopupFeatures: this.clonedMapPopup.querySelectorAll('.popup__feature'),
+  mapPopupPhotoList: this.clonedMapPopup.querySelector('.popup__photos'),
+  mapPopupPhoto: this.clonedMapPopup.querySelector('.popup__photo')
+
+}
+
 
 function createMapPopup(array) {
   var fragment = document.createDocumentFragment();
@@ -123,45 +142,37 @@ function createMapPopup(array) {
   clonedMapPopup.querySelector('.popup__text--address').textContent = array[0].offer.address;
   clonedMapPopup.querySelector('.popup__text--price').textContent = array[0].offer.price + '₽/ночь';
 
-  switch (array[0].offer.type) {
-    case 'flat':
-      mapPopupType.textContent = 'Квартира';
-      break;
-    case 'bungalo':
-      mapPopupType.textContent = 'Бунгало';
-      break;
-    case 'house':
-      mapPopupType.textContent = 'Дом';
-      break;
-    case 'palace':
-      mapPopupType.textContent = 'Дворец';
-      break;
-    default:
-      mapPopupType.textContent = 'Другой';
-  }
+  mapPopupType.textContent = OFFER_TYPES_LIBS[array[0].offer.type];
 
-  clonedMapPopup.querySelector('.popup__text--capacity').textContent = array[0].offer.rooms + ' комнат' + getEndingWord(array[0].offer.rooms, ['ы', 'а', '']) + ' для ' + array[0].offer.guests + ' гост' + getEndingWord(array[0].offer.guests, ['ей', 'я', 'ей']) + '.';
+  clonedMapPopup.querySelector('.popup__text--capacity').textContent = array[0].offer.rooms + ' ' + getEndingWord(array[0].offer.rooms, VARIANTS_WORD_ROOMS) + ' для ' + array[0].offer.guests + ' ' + getEndingWord(array[0].offer.guests, VARIANTS_WORD_GUESTS) + '.';
   clonedMapPopup.querySelector('.popup__text--time').textContent = 'Заезд после ' + array[0].offer.checkin + ', выезд до ' + array[0].offer.checkout;
 
   mapPopupFeatureList.innerHTML = '';
+  var featuresFragment = document.createDocumentFragment();
+
   array[0].offer.features.forEach(function (element) {
-    for (var i = 0; i < mapPopupFeatures.length; i++) {
-      if (mapPopupFeatures[i].classList.contains('popup__feature--' + element)) {
-        var clonedFeature = mapPopupFeatures[i].cloneNode(true);
-        mapPopupFeatureList.appendChild(clonedFeature);
-        break;
+    mapPopupFeatures.forEach(function (clonableElement) {
+      if (clonableElement.classList.contains('popup__feature--' + element)) {
+        var clonedFeature = clonableElement.cloneNode(true);
+        featuresFragment.appendChild(clonedFeature);
       }
-    }
+    });
   });
+
+  mapPopupFeatureList.appendChild(featuresFragment);
 
   clonedMapPopup.querySelector('.popup__description').textContent = array[0].offer.description;
 
   mapPopupPhotoList.innerHTML = '';
+  var photosFragment = document.createDocumentFragment();
+
   array[0].offer.photos.forEach(function (element) {
     var clonedPhoto = mapPopupPhoto.cloneNode(true);
     clonedPhoto.src = element;
-    mapPopupPhotoList.appendChild(clonedPhoto);
+    photosFragment.appendChild(clonedPhoto);
   });
+
+  mapPopupPhotoList.appendChild(photosFragment);
 
   clonedMapPopup.querySelector('.popup__avatar').src = array[0].author.avatar;
   fragment.appendChild(clonedMapPopup);
