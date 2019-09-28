@@ -102,9 +102,9 @@ function createPin(obj) {
 function drawPins(parentNode, mocks) {
   var fragment = document.createDocumentFragment();
 
-  for (var i = 0; i < mocks.length; i++) {
-    fragment.appendChild(createPin(mocks[i]));
-  }
+  mocks.forEach(function (element) {
+    fragment.appendChild(createPin(element));
+  });
 
   parentNode.appendChild(fragment);
 }
@@ -118,42 +118,48 @@ function getEndingWord(num, endings) {
   return endings[0];
 }
 
+var CLONED_MAP_POPUP = MAP_CARD_TEMPLATE.cloneNode(true);
+
+function createObjectOfNodes(htmlCollection) {
+  var object = {};
+  htmlCollection.forEach(function (element) {
+    var key = element.className.split('--').reverse()[0];
+    object[key] = element;
+  });
+  return object;
+}
+
 function createMapPopup(array) {
   var fragment = document.createDocumentFragment();
-  var clonedMapPopup = MAP_CARD_TEMPLATE.cloneNode(true);
-  var mapPopupType = clonedMapPopup.querySelector('.popup__type');
-  var mapPopupFeatureList = clonedMapPopup.querySelector('.popup__features');
+
+  var mapPopupType = CLONED_MAP_POPUP.querySelector('.popup__type');
+  var mapPopupFeatureList = CLONED_MAP_POPUP.querySelector('.popup__features');
   var mapPopupFeatures = mapPopupFeatureList.querySelectorAll('.popup__feature');
-  var mapPopupPhotoList = clonedMapPopup.querySelector('.popup__photos');
+  var mapPopupPhotoList = CLONED_MAP_POPUP.querySelector('.popup__photos');
   var mapPopupPhoto = mapPopupPhotoList.querySelector('.popup__photo');
-
-  clonedMapPopup.querySelector('.popup__title').textContent = array[0].offer.title;
-  clonedMapPopup.querySelector('.popup__text--address').textContent = array[0].offer.address;
-  clonedMapPopup.querySelector('.popup__text--price').textContent = array[0].offer.price + '₽/ночь';
-
+  CLONED_MAP_POPUP.querySelector('.popup__title').textContent = array[0].offer.title;
+  CLONED_MAP_POPUP.querySelector('.popup__text--address').textContent = array[0].offer.address;
+  CLONED_MAP_POPUP.querySelector('.popup__text--price').textContent = array[0].offer.price + '₽/ночь';
   mapPopupType.textContent = OFFER_TYPES_LIBS[array[0].offer.type];
-
-  clonedMapPopup.querySelector('.popup__text--capacity').textContent = array[0].offer.rooms + ' ' + getEndingWord(array[0].offer.rooms, VARIANTS_WORD_ROOMS) + ' для ' + array[0].offer.guests + ' ' + getEndingWord(array[0].offer.guests, VARIANTS_WORD_GUESTS) + '.';
-  clonedMapPopup.querySelector('.popup__text--time').textContent = 'Заезд после ' + array[0].offer.checkin + ', выезд до ' + array[0].offer.checkout;
+  CLONED_MAP_POPUP.querySelector('.popup__text--capacity').textContent = array[0].offer.rooms + ' ' + getEndingWord(array[0].offer.rooms, VARIANTS_WORD_ROOMS) + ' для ' + array[0].offer.guests + ' ' + getEndingWord(array[0].offer.guests, VARIANTS_WORD_GUESTS) + '.';
+  CLONED_MAP_POPUP.querySelector('.popup__text--time').textContent = 'Заезд после ' + array[0].offer.checkin + ', выезд до ' + array[0].offer.checkout;
 
   mapPopupFeatureList.innerHTML = '';
   var featuresFragment = document.createDocumentFragment();
+  var objectOfNodes = createObjectOfNodes(mapPopupFeatures);
 
   array[0].offer.features.forEach(function (element) {
-    mapPopupFeatures.forEach(function (clonableElement) {
-      if (clonableElement.classList.contains('popup__feature--' + element)) {
-        var clonedFeature = clonableElement.cloneNode(true);
-        featuresFragment.appendChild(clonedFeature);
-      }
-    });
+    var clonedNode = objectOfNodes[element].cloneNode(true);
+    featuresFragment.appendChild(clonedNode);
   });
 
   mapPopupFeatureList.appendChild(featuresFragment);
 
-  clonedMapPopup.querySelector('.popup__description').textContent = array[0].offer.description;
+  CLONED_MAP_POPUP.querySelector('.popup__description').textContent = array[0].offer.description;
 
   mapPopupPhotoList.innerHTML = '';
   var photosFragment = document.createDocumentFragment();
+
 
   array[0].offer.photos.forEach(function (element) {
     var clonedPhoto = mapPopupPhoto.cloneNode(true);
@@ -163,8 +169,8 @@ function createMapPopup(array) {
 
   mapPopupPhotoList.appendChild(photosFragment);
 
-  clonedMapPopup.querySelector('.popup__avatar').src = array[0].author.avatar;
-  fragment.appendChild(clonedMapPopup);
+  CLONED_MAP_POPUP.querySelector('.popup__avatar').src = array[0].author.avatar;
+  fragment.appendChild(CLONED_MAP_POPUP);
   MAP.insertBefore(fragment, MAP_FILTERS_CONTAINER);
 }
 
