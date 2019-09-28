@@ -129,6 +129,16 @@ function createObjectOfNodes(htmlCollection) {
   return object;
 }
 
+function createPhotosFragment(srcArray, clonableElement, fragment) {
+  srcArray.forEach(function (element) {
+    var clonedNode = clonableElement.cloneNode(true);
+    clonedNode.src = element;
+    fragment.appendChild(clonedNode);
+  });
+  return fragment;
+}
+
+
 function createMapPopup(array) {
   var fragment = document.createDocumentFragment();
 
@@ -144,6 +154,10 @@ function createMapPopup(array) {
   CLONED_MAP_POPUP.querySelector('.popup__text--capacity').textContent = array[0].offer.rooms + ' ' + getEndingWord(array[0].offer.rooms, VARIANTS_WORD_ROOMS) + ' для ' + array[0].offer.guests + ' ' + getEndingWord(array[0].offer.guests, VARIANTS_WORD_GUESTS) + '.';
   CLONED_MAP_POPUP.querySelector('.popup__text--time').textContent = 'Заезд после ' + array[0].offer.checkin + ', выезд до ' + array[0].offer.checkout;
 
+  /*
+
+  */
+
   mapPopupFeatureList.innerHTML = '';
   var featuresFragment = document.createDocumentFragment();
   var objectOfNodes = createObjectOfNodes(mapPopupFeatures);
@@ -155,18 +169,13 @@ function createMapPopup(array) {
 
   mapPopupFeatureList.appendChild(featuresFragment);
 
+
   CLONED_MAP_POPUP.querySelector('.popup__description').textContent = array[0].offer.description;
+
 
   mapPopupPhotoList.innerHTML = '';
   var photosFragment = document.createDocumentFragment();
-
-
-  array[0].offer.photos.forEach(function (element) {
-    var clonedPhoto = mapPopupPhoto.cloneNode(true);
-    clonedPhoto.src = element;
-    photosFragment.appendChild(clonedPhoto);
-  });
-
+  createPhotosFragment(array[0].offer.photos, mapPopupPhoto, photosFragment);
   mapPopupPhotoList.appendChild(photosFragment);
 
   CLONED_MAP_POPUP.querySelector('.popup__avatar').src = array[0].author.avatar;
