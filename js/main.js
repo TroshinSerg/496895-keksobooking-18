@@ -28,6 +28,21 @@ var OFFER_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http:
 var VARIANTS_WORD_ROOMS = ['комнаты', 'комната', 'комнат'];
 var VARIANTS_WORD_GUESTS = ['гостей', 'гостя', 'гостей'];
 
+var CLONED_MAP_POPUP = MAP_CARD_TEMPLATE.cloneNode(true);
+var CLONED_MAP_POPUP_NODES = {
+  type: CLONED_MAP_POPUP.querySelector('.popup__type'),
+  featureList: CLONED_MAP_POPUP.querySelector('.popup__features'),
+  features: CLONED_MAP_POPUP.querySelectorAll('.popup__feature'),
+  photoList: CLONED_MAP_POPUP.querySelector('.popup__photos'),
+  photo: CLONED_MAP_POPUP.querySelector('.popup__photo'),
+  title: CLONED_MAP_POPUP.querySelector('.popup__title'),
+  address: CLONED_MAP_POPUP.querySelector('.popup__text--address'),
+  price: CLONED_MAP_POPUP.querySelector('.popup__text--price'),
+  capacity: CLONED_MAP_POPUP.querySelector('.popup__text--capacity'),
+  time: CLONED_MAP_POPUP.querySelector('.popup__text--time'),
+  description: CLONED_MAP_POPUP.querySelector('.popup__description'),
+  avatar: CLONED_MAP_POPUP.querySelector('.popup__avatar')
+};
 
 function getRandomNum(min, max) {
   return Math.floor(min + Math.random() * (max + 1 - min));
@@ -118,8 +133,6 @@ function getEndingWord(num, endings) {
   return endings[0];
 }
 
-var CLONED_MAP_POPUP = MAP_CARD_TEMPLATE.cloneNode(true);
-
 function createObjectOfNodes(htmlCollection) {
   var object = {};
   htmlCollection.forEach(function (element) {
@@ -138,47 +151,34 @@ function createPhotosFragment(srcArray, clonableElement, fragment) {
   return fragment;
 }
 
-
 function createMapPopup(array) {
   var fragment = document.createDocumentFragment();
 
-  var mapPopupType = CLONED_MAP_POPUP.querySelector('.popup__type');
-  var mapPopupFeatureList = CLONED_MAP_POPUP.querySelector('.popup__features');
-  var mapPopupFeatures = mapPopupFeatureList.querySelectorAll('.popup__feature');
-  var mapPopupPhotoList = CLONED_MAP_POPUP.querySelector('.popup__photos');
-  var mapPopupPhoto = mapPopupPhotoList.querySelector('.popup__photo');
-  CLONED_MAP_POPUP.querySelector('.popup__title').textContent = array[0].offer.title;
-  CLONED_MAP_POPUP.querySelector('.popup__text--address').textContent = array[0].offer.address;
-  CLONED_MAP_POPUP.querySelector('.popup__text--price').textContent = array[0].offer.price + '₽/ночь';
-  mapPopupType.textContent = OFFER_TYPES_LIBS[array[0].offer.type];
-  CLONED_MAP_POPUP.querySelector('.popup__text--capacity').textContent = array[0].offer.rooms + ' ' + getEndingWord(array[0].offer.rooms, VARIANTS_WORD_ROOMS) + ' для ' + array[0].offer.guests + ' ' + getEndingWord(array[0].offer.guests, VARIANTS_WORD_GUESTS) + '.';
-  CLONED_MAP_POPUP.querySelector('.popup__text--time').textContent = 'Заезд после ' + array[0].offer.checkin + ', выезд до ' + array[0].offer.checkout;
+  CLONED_MAP_POPUP_NODES.title.textContent = array[0].offer.title;
+  CLONED_MAP_POPUP_NODES.address.textContent = array[0].offer.address;
+  CLONED_MAP_POPUP_NODES.price.textContent = array[0].offer.price + '₽/ночь';
+  CLONED_MAP_POPUP_NODES.type.textContent = OFFER_TYPES_LIBS[array[0].offer.type];
+  CLONED_MAP_POPUP_NODES.capacity.textContent = array[0].offer.rooms + ' ' + getEndingWord(array[0].offer.rooms, VARIANTS_WORD_ROOMS) + ' для ' + array[0].offer.guests + ' ' + getEndingWord(array[0].offer.guests, VARIANTS_WORD_GUESTS) + '.';
+  CLONED_MAP_POPUP_NODES.time.textContent = 'Заезд после ' + array[0].offer.checkin + ', выезд до ' + array[0].offer.checkout;
+  CLONED_MAP_POPUP_NODES.description.textContent = array[0].offer.description;
+  CLONED_MAP_POPUP_NODES.avatar.src = array[0].author.avatar;
 
-  /*
-
-  */
-
-  mapPopupFeatureList.innerHTML = '';
+  CLONED_MAP_POPUP_NODES.featureList.innerHTML = '';
   var featuresFragment = document.createDocumentFragment();
-  var objectOfNodes = createObjectOfNodes(mapPopupFeatures);
+  var objectOfNodes = createObjectOfNodes(CLONED_MAP_POPUP_NODES.features);
 
   array[0].offer.features.forEach(function (element) {
     var clonedNode = objectOfNodes[element].cloneNode(true);
     featuresFragment.appendChild(clonedNode);
   });
 
-  mapPopupFeatureList.appendChild(featuresFragment);
+  CLONED_MAP_POPUP_NODES.featureList.appendChild(featuresFragment);
 
-
-  CLONED_MAP_POPUP.querySelector('.popup__description').textContent = array[0].offer.description;
-
-
-  mapPopupPhotoList.innerHTML = '';
+  CLONED_MAP_POPUP_NODES.photoList.innerHTML = '';
   var photosFragment = document.createDocumentFragment();
-  createPhotosFragment(array[0].offer.photos, mapPopupPhoto, photosFragment);
-  mapPopupPhotoList.appendChild(photosFragment);
+  createPhotosFragment(array[0].offer.photos, CLONED_MAP_POPUP_NODES.photo, photosFragment);
+  CLONED_MAP_POPUP_NODES.photoList.appendChild(photosFragment);
 
-  CLONED_MAP_POPUP.querySelector('.popup__avatar').src = array[0].author.avatar;
   fragment.appendChild(CLONED_MAP_POPUP);
   MAP.insertBefore(fragment, MAP_FILTERS_CONTAINER);
 }
