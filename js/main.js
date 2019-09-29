@@ -134,15 +134,16 @@ function getEndingWord(num, endings) {
 }
 
 function createObjectOfNodes(htmlCollection) {
-  var object = {};
+  var nodes = {};
   htmlCollection.forEach(function (element) {
-    var key = element.className.split('--').reverse()[0];
-    object[key] = element;
+    var key = element.className.split('--').pop();
+    nodes[key] = element;
   });
-  return object;
+  return nodes;
 }
 
-function createPhotosFragment(srcArray, clonableElement, fragment) {
+function createPhotosFragment(srcArray, clonableElement) {
+  var fragment = document.createDocumentFragment();
   srcArray.forEach(function (element) {
     var clonedNode = clonableElement.cloneNode(true);
     clonedNode.src = element;
@@ -175,8 +176,7 @@ function createMapPopup(array) {
   CLONED_MAP_POPUP_NODES.featureList.appendChild(featuresFragment);
 
   CLONED_MAP_POPUP_NODES.photoList.innerHTML = '';
-  var photosFragment = document.createDocumentFragment();
-  createPhotosFragment(array[0].offer.photos, CLONED_MAP_POPUP_NODES.photo, photosFragment);
+  var photosFragment = createPhotosFragment(array[0].offer.photos, CLONED_MAP_POPUP_NODES.photo);
   CLONED_MAP_POPUP_NODES.photoList.appendChild(photosFragment);
 
   fragment.appendChild(CLONED_MAP_POPUP);
