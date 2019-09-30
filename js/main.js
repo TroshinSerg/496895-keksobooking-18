@@ -49,7 +49,7 @@ function getRandomNum(min, max) {
 }
 
 function getRandomElement(array, remove) {
-  var randomIndex = Math.floor(Math.random() * array.length);
+  var randomIndex = getRandomNum(0, array.length - 1);
   return (remove) ? array.splice(randomIndex, 1).toString() : array[randomIndex];
 }
 
@@ -201,6 +201,8 @@ function createMapPopup(item) {
   MAP.insertBefore(fragment, MAP_FILTERS_CONTAINER);
 }
 
+var mocks = getMocks(SIMILAR_AD_COUNT);
+
 MAP.classList.remove('map--faded');
-drawPins(MAP_PIN_LIST, getMocks(SIMILAR_AD_COUNT));
-createMapPopup(getMocks(SIMILAR_AD_COUNT)[0]);
+drawPins(MAP_PIN_LIST, mocks);
+createMapPopup(mocks[0]);
