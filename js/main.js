@@ -27,6 +27,7 @@ var OFFER_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'co
 var OFFER_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 var VARIANTS_WORD_ROOMS = ['комнаты', 'комната', 'комнат'];
 var VARIANTS_WORD_GUESTS = ['гостей', 'гостя', 'гостей'];
+var IS_MULTIPLE_REGEX = /es$/;
 
 var SELECTORS_POPUP_NODES = {
   type: '.popup__type',
@@ -168,32 +169,32 @@ function clonePopupNodes(selectors, popup) {
   var keys = Object.keys(selectors);
 
   keys.forEach(function (element) {
-    nodes[element] = element.match(/es$/) !== null ? popup.querySelectorAll(selectors[element]) : popup.querySelector(selectors[element]);
+    nodes[element] = IS_MULTIPLE_REGEX.test(element) ? popup.querySelectorAll(selectors[element]) : popup.querySelector(selectors[element]);
   });
 
   return nodes;
 }
 
-function createMapPopup(array) {
+function createMapPopup(item) {
   var clonedPopup = MAP_CARD_TEMPLATE.cloneNode(true);
   var fragment = document.createDocumentFragment();
   var clonedNodes = clonePopupNodes(SELECTORS_POPUP_NODES, clonedPopup);
 
-  clonedNodes.title.textContent = array[0].offer.title;
-  clonedNodes.address.textContent = array[0].offer.address;
-  clonedNodes.price.textContent = array[0].offer.price + '₽/ночь';
-  clonedNodes.type.textContent = OFFER_TYPES_LIBS[array[0].offer.type];
-  clonedNodes.capacity.textContent = array[0].offer.rooms + ' ' + getEndingWord(array[0].offer.rooms, VARIANTS_WORD_ROOMS) + ' для ' + array[0].offer.guests + ' ' + getEndingWord(array[0].offer.guests, VARIANTS_WORD_GUESTS) + '.';
-  clonedNodes.time.textContent = 'Заезд после ' + array[0].offer.checkin + ', выезд до ' + array[0].offer.checkout;
-  clonedNodes.description.textContent = array[0].offer.description;
-  clonedNodes.avatar.src = array[0].author.avatar;
+  clonedNodes.title.textContent = item.offer.title;
+  clonedNodes.address.textContent = item.offer.address;
+  clonedNodes.price.textContent = item.offer.price + '₽/ночь';
+  clonedNodes.type.textContent = OFFER_TYPES_LIBS[item.offer.type];
+  clonedNodes.capacity.textContent = item.offer.rooms + ' ' + getEndingWord(item.offer.rooms, VARIANTS_WORD_ROOMS) + ' для ' + item.offer.guests + ' ' + getEndingWord(item.offer.guests, VARIANTS_WORD_GUESTS) + '.';
+  clonedNodes.time.textContent = 'Заезд после ' + item.offer.checkin + ', выезд до ' + item.offer.checkout;
+  clonedNodes.description.textContent = item.offer.description;
+  clonedNodes.avatar.src = item.author.avatar;
 
   clonedNodes.featureList.innerHTML = '';
-  var featuresFragment = createFeaturesFragment(array[0].offer.features, clonedNodes.features);
+  var featuresFragment = createFeaturesFragment(item.offer.features, clonedNodes.features);
   clonedNodes.featureList.appendChild(featuresFragment);
 
   clonedNodes.photoList.innerHTML = '';
-  var photosFragment = createPhotosFragment(array[0].offer.photos, clonedNodes.photo);
+  var photosFragment = createPhotosFragment(item.offer.photos, clonedNodes.photo);
   clonedNodes.photoList.appendChild(photosFragment);
 
   fragment.appendChild(clonedPopup);
@@ -202,4 +203,4 @@ function createMapPopup(array) {
 
 MAP.classList.remove('map--faded');
 drawPins(MAP_PIN_LIST, getMocks(SIMILAR_AD_COUNT));
-createMapPopup(getMocks(SIMILAR_AD_COUNT));
+createMapPopup(getMocks(SIMILAR_AD_COUNT)[0]);
