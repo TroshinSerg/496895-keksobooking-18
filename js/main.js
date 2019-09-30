@@ -114,14 +114,14 @@ function createPin(obj) {
   return clonedPin;
 }
 
-function drawPins(parentNode, mocks) {
+function drawPins(mocks) {
   var fragment = document.createDocumentFragment();
 
   mocks.forEach(function (element) {
     fragment.appendChild(createPin(element));
   });
 
-  parentNode.appendChild(fragment);
+  return fragment;
 }
 
 function getEndingWord(num, endings) {
@@ -204,5 +204,5 @@ function createMapPopup(item) {
 var mocks = getMocks(SIMILAR_AD_COUNT);
 
 MAP.classList.remove('map--faded');
-drawPins(MAP_PIN_LIST, mocks);
+MAP_PIN_LIST.appendChild(drawPins(mocks));
 createMapPopup(mocks[0]);
