@@ -48,18 +48,18 @@ function getRandomNum(min, max) {
   return Math.floor(min + Math.random() * (max + 1 - min));
 }
 
-function getRandomElement(array, remove) {
+function getRandomElement(array, isRemove) {
   var randomIndex = getRandomNum(0, array.length - 1);
-  return (remove) ? array.splice(randomIndex, 1).toString() : array[randomIndex];
+  return (isRemove) ? array.splice(randomIndex, 1).toString() : array[randomIndex];
 }
 
 function createRandomArray(array) {
-  var arrayCopy = array.slice();
+  var copyOfArray = array.slice();
   var randomArray = [];
-  var counter = getRandomNum(1, arrayCopy.length);
+  var counter = getRandomNum(1, copyOfArray.length);
 
   for (var i = 0; i < counter; i++) {
-    randomArray.push(getRandomElement(arrayCopy, true));
+    randomArray.push(getRandomElement(copyOfArray, true));
   }
 
   return randomArray;
@@ -102,23 +102,23 @@ function getMocks(count) {
   return mocks;
 }
 
-function createPin(obj) {
+function createPin(item) {
   var clonedPin = MAP_PIN_TEMPLATE.cloneNode(true);
   var clonedPinAuthor = clonedPin.querySelector('img');
 
-  clonedPin.style.left = obj.location.x + 'px';
-  clonedPin.style.top = obj.location.y + 'px';
-  clonedPinAuthor.src = obj.author.avatar;
-  clonedPinAuthor.alt = obj.offer.title;
+  clonedPin.style.left = item.location.x + 'px';
+  clonedPin.style.top = item.location.y + 'px';
+  clonedPinAuthor.src = item.author.avatar;
+  clonedPinAuthor.alt = item.offer.title;
 
   return clonedPin;
 }
 
-function drawPins(mocks) {
+function drawPins(data) {
   var fragment = document.createDocumentFragment();
 
-  mocks.forEach(function (element) {
-    fragment.appendChild(createPin(element));
+  data.forEach(function (item) {
+    fragment.appendChild(createPin(item));
   });
 
   return fragment;
@@ -135,29 +135,29 @@ function getEndingWord(num, endings) {
 
 function createObjectOfNodes(htmlCollection) {
   var nodes = {};
-  htmlCollection.forEach(function (element) {
-    var key = element.className.split('--').pop();
-    nodes[key] = element;
+  htmlCollection.forEach(function (node) {
+    var key = node.className.split('--').pop();
+    nodes[key] = node;
   });
   return nodes;
 }
 
-function createPhotosFragment(srcArray, clonableElement) {
+function createPhotosFragment(sources, clonableElement) {
   var fragment = document.createDocumentFragment();
-  srcArray.forEach(function (element) {
+  sources.forEach(function (src) {
     var clonedNode = clonableElement.cloneNode(true);
-    clonedNode.src = element;
+    clonedNode.src = src;
     fragment.appendChild(clonedNode);
   });
   return fragment;
 }
 
-function createFeaturesFragment(array, nodes) {
+function createFeaturesFragment(features, nodes) {
   var fragment = document.createDocumentFragment();
   var objectOfNodes = createObjectOfNodes(nodes);
 
-  array.forEach(function (element) {
-    var clonedNode = objectOfNodes[element].cloneNode(true);
+  features.forEach(function (feature) {
+    var clonedNode = objectOfNodes[feature].cloneNode(true);
     fragment.appendChild(clonedNode);
   });
 
@@ -168,8 +168,8 @@ function clonePopupNodes(selectors, popup) {
   var nodes = {};
   var keys = Object.keys(selectors);
 
-  keys.forEach(function (element) {
-    nodes[element] = IS_MULTIPLE_REGEX.test(element) ? popup.querySelectorAll(selectors[element]) : popup.querySelector(selectors[element]);
+  keys.forEach(function (key) {
+    nodes[key] = IS_MULTIPLE_REGEX.test(key) ? popup.querySelectorAll(selectors[key]) : popup.querySelector(selectors[key]);
   });
 
   return nodes;
@@ -201,8 +201,12 @@ function createMapPopup(item) {
   MAP.insertBefore(fragment, MAP_FILTERS_CONTAINER);
 }
 
-var mocks = getMocks(SIMILAR_AD_COUNT);
+function createMapElements(count) {
+  var mocks = getMocks(count);
 
-MAP.classList.remove('map--faded');
-MAP_PIN_LIST.appendChild(drawPins(mocks));
-createMapPopup(mocks[0]);
+  MAP.classList.remove('map--faded');
+  MAP_PIN_LIST.appendChild(drawPins(mocks));
+  createMapPopup(mocks[0]);
+}
+
+createMapElements(SIMILAR_AD_COUNT);
