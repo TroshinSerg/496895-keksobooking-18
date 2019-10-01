@@ -2,10 +2,11 @@
 
 var MAP = document.querySelector('.map');
 var MAP_PIN_LIST = document.querySelector('.map__pins');
+var MAP_MAIN_PIN = document.querySelector('.map__pin--main');
 var MAP_PIN_TEMPLATE = document.querySelector('#pin').content.querySelector('.map__pin');
 var MAP_CARD_TEMPLATE = document.querySelector('#card').content.querySelector('.map__card');
 var MAP_FILTERS_CONTAINER = MAP.querySelector('.map__filters-container');
-var SIMILAR_AD_COUNT = 8;
+
 var MAP_WIDTH = MAP.offsetWidth;
 var MAP_MIN_Y = 130;
 var MAP_MAX_Y = 630;
@@ -43,6 +44,15 @@ var SELECTORS_POPUP_NODES = {
   description: '.popup__description',
   avatar: '.popup__avatar'
 };
+
+var KEYCODES = {
+  esc: 27,
+  enter: 13,
+  space: 32
+};
+
+var FORMS_NODES = document.querySelectorAll('form > select, form > fieldset');
+var AD_FORM = document.querySelector('.ad-form');
 
 function getRandomNum(min, max) {
   return Math.floor(min + Math.random() * (max + 1 - min));
@@ -201,12 +211,88 @@ function createMapPopup(item) {
   MAP.insertBefore(fragment, MAP_FILTERS_CONTAINER);
 }
 
+/*eslint-disable */
+//suppress all warnings between comments
 function createMapElements(count) {
   var mocks = getMocks(count);
 
-  MAP.classList.remove('map--faded');
   MAP_PIN_LIST.appendChild(drawPins(mocks));
   createMapPopup(mocks[0]);
 }
+/* jslint ignore:end */
 
-createMapElements(SIMILAR_AD_COUNT);
+function lockForms(htmlCollection) {
+  htmlCollection.forEach(function (node) {
+    node.disabled = 'disabled';
+  });
+}
+
+function unlockForms(htmlCollection) {
+  htmlCollection.forEach(function (node) {
+    node.removeAttribute('disabled');
+  });
+}
+
+function onMapPinMainKeydown(evt) {
+  if (evt.keyCode === KEYCODES.enter || evt.keyCode === KEYCODES.space) {
+    makePageActive();
+    unlockForms(FORMS_NODES);
+  }
+}
+
+function onMapPinMainMousedown(evt) {
+  evt.preventDefault();
+  var startCoords = {
+    x: evt.clientX,
+    y: evt.clientY
+  };
+
+  var isDrag = false;
+
+  function onMapPinMainMousemove(moveEvt) {
+    moveEvt.preventDefault();
+    isDrag = true;
+
+    var shift = {
+      x: startCoords.x - moveEvt.clientX,
+      y: startCoords.y - moveEvt.clientY
+    };
+
+    startCoords = {
+      x: moveEvt.clientX,
+      y: moveEvt.clientY
+    };
+
+    MAP_MAIN_PIN.style.top = (MAP_MAIN_PIN.offsetTop - shift.y) + 'px';
+    MAP_MAIN_PIN.style.left = (MAP_MAIN_PIN.offsetLeft - shift.x) + 'px';
+  }
+
+  function onMapPinMainMouseup(upEvt) {
+    upEvt.preventDefault();
+
+    if (isDrag) {
+      var onMapPinMainClickPreventDefault = function (evtPrevDef) {
+        evtPrevDef.preventDefault();
+        MAP_MAIN_PIN.removeEventListener('click', onMapPinMainClickPreventDefault);
+      };
+    }
+
+    MAP_MAIN_PIN.addEventListener('click', onMapPinMainClickPreventDefault);
+    document.removeEventListener('mousemove', onMapPinMainMousemove);
+    document.removeEventListener('mouseup', onMapPinMainMouseup);
+  }
+
+  document.addEventListener('mousemove', onMapPinMainMousemove);
+  document.addEventListener('mouseup', onMapPinMainMouseup);
+  unlockForms(FORMS_NODES);
+  makePageActive();
+}
+
+function makePageActive() {
+  MAP.classList.remove('map--faded');
+  AD_FORM.classList.remove('ad-form--disabled');
+}
+
+lockForms(FORMS_NODES);
+MAP_MAIN_PIN.addEventListener('mousedown', onMapPinMainMousedown);
+MAP_MAIN_PIN.addEventListener('keydown', onMapPinMainKeydown);
