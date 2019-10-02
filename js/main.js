@@ -57,8 +57,9 @@ var KEYCODES = {
 };
 
 var FORMS_NODES = document.querySelectorAll('form > select, form > fieldset');
-var AD_FORM = document.querySelector('.ad-form');
-var ADDRESS_FIELD = AD_FORM.querySelector('#address');
+var AD_FORM = document.forms[1];
+
+var ROOMS_NOT_GUEST_VALUE = 100;
 
 function getRandomNum(min, max) {
   return Math.floor(min + Math.random() * (max + 1 - min));
@@ -254,7 +255,6 @@ function onMapPinMainMousedown(evt) {
 
   var isDrag = false;
   var limitDragArea = getLmitDragArea(MAP_PIN_LIST);
-  console.log(limitDragArea.maxX);
 
   function onMapPinMainMousemove(moveEvt) {
     moveEvt.preventDefault();
@@ -313,9 +313,8 @@ function makePageActive() {
 function writeAddressField(offsetFromCenter) {
   var top = (offsetFromCenter !== undefined) ? parseFloat(MAP_MAIN_PIN.style.top) + offsetFromCenter : parseFloat(MAP_MAIN_PIN.style.top);
   var left = parseFloat(MAP_MAIN_PIN.style.left);
-  ADDRESS_FIELD.value = (left + MAP_MAIN_PIN_SIZE.width / 2) + ', ' + (top + MAP_MAIN_PIN_SIZE.height / 2);
+  AD_FORM.address.value = (left + MAP_MAIN_PIN_SIZE.width / 2) + ', ' + (top + MAP_MAIN_PIN_SIZE.height / 2);
 }
-
 
 function getLmitDragArea(area) {
   var values = {
@@ -327,7 +326,38 @@ function getLmitDragArea(area) {
   return values;
 }
 
+function desableOption () {
+  var selectedIndex = AD_FORM.capacity.selectedIndex;
+  console.log(AD_FORM.capacity.options[selectedIndex].value)
+  return AD_FORM.capacity.options[selectedIndex].value;
+}
+
+function onRoomsSelectChange(evt) {
+  var form = document.forms[1];
+  var capacitySelect = form.capacity;
+  var roomsSelect = form.rooms;
+  var index = roomsSelect.selectedIndex;
+  var count = (+roomsSelect[index].value === ROOMS_NOT_GUEST_VALUE) ? roomsSelect.length - 1 : roomsSelect.length;
+
+  if (count !== roomsSelect.length ) {
+    for (var i = 0; i < count; i++) {
+      capacitySelect[i].disabled = true;
+      capacitySelect[i].selected = false;
+    }
+  } else {
+    for (var i = 0; i < count; i++) {
+      if(+capacitySelect[i].value <= +roomsSelect[index].value) {
+        capacitySelect[i].disabled = false;
+        continue;
+      }
+      capacitySelect[i].disabled = true;
+      capacitySelect[i].selected = false;
+    }
+  }
+}
+
 lockForms(FORMS_NODES);
 MAP_MAIN_PIN.addEventListener('mousedown', onMapPinMainMousedown);
 MAP_MAIN_PIN.addEventListener('keydown', onMapPinMainKeydown);
+AD_FORM.addEventListener('change', onRoomsSelectChange);
 writeAddressField();
