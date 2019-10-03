@@ -305,7 +305,10 @@ function onMapPinMainMousedown(evt) {
 
   document.addEventListener('mousemove', onMapPinMainMousemove);
   document.addEventListener('mouseup', onMapPinMainMouseup);
-  activatePage();
+  writeAddressField(MAP_MAIN_PIN_SIZE.sizeWithPoint);
+  if (MAP.classList.contains('map--faded')) {
+    activatePage();
+  }
 }
 
 function activatePage() {
@@ -313,7 +316,6 @@ function activatePage() {
   AD_FORM.classList.remove('ad-form--disabled');
   createMapElements(SIMILAR_AD_COUNT);
   unlockForms(FORMS_NODES);
-  writeAddressField(MAP_MAIN_PIN_SIZE.sizeWithPoint);
 }
 
 function writeAddressField(offsetFromCenter) {
@@ -359,6 +361,7 @@ function onRoomsSelectChange() {
     AD_FORM_CAPACITY_SELECT.setCustomValidity('');
   }
 }
+
 
 lockForms(FORMS_NODES);
 MAP_MAIN_PIN.addEventListener('mousedown', onMapPinMainMousedown);
