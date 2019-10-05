@@ -23,7 +23,6 @@ var MAX_COUNT_ROOM = 10;
 var MIN_PRICE = 1000;
 var MAX_PRICE = 25000;
 var SIMILAR_AD_COUNT = 8;
-var OFFER_TYPES = ['palace', 'flat', 'house', 'bungalo'];
 var OFFER_TYPES_LIBS = {
   palace: 'Дворец',
   flat: 'Квартира',
@@ -105,9 +104,9 @@ function getMocks(count) {
 
       'offer': {
         'title': 'Заголовок предложения №' + serialNumber,
-        'address': locationX + ', ' + locationY,
+        'address': [locationX, locationY].join(', '),
         'price': getRandomNum(MIN_PRICE, MAX_PRICE),
-        'type': getRandomElement(OFFER_TYPES),
+        'type': getRandomElement(Object.keys(OFFER_TYPES_LIBS)),
         'rooms': getRandomNum(MIN_COUNT_ROOM, MAX_COUNT_ROOM),
         'guests': getRandomNum(0, MAX_COUNT_ROOM),
         'checkin': getRandomElement(OFFER_TIMES),
@@ -139,7 +138,7 @@ function createPin(item) {
   return clonedPin;
 }
 
-function drawPins(data) {
+function createPinsFragment(data) {
   var fragment = document.createDocumentFragment();
 
   data.forEach(function (item) {
@@ -150,9 +149,10 @@ function drawPins(data) {
 }
 
 function getEndingWord(num, endings) {
-  if (num % 100 === 0 || num % 100 > 4 && num % 100 !== 1) {
+  var remainder = num % 100;
+  if (remainder === 0 || remainder > 4 && remainder !== 1) {
     return endings[2];
-  } else if (num % 100 === 1) {
+  } else if (remainder === 1) {
     return endings[1];
   }
   return endings[0];
@@ -229,17 +229,17 @@ function createMapPopup(item) {
 function createMapElements(count) {
   var mocks = getMocks(count);
 
-  MAP_PIN_LIST.appendChild(drawPins(mocks));
+  MAP_PIN_LIST.appendChild(createPinsFragment(mocks));
   createMapPopup(mocks[0]);
 }
 
-function lockForms(htmlCollection) {
+function disableElements(htmlCollection) {
   htmlCollection.forEach(function (node) {
     node.disabled = 'disabled';
   });
 }
 
-function unlockForms(htmlCollection) {
+function enableElements(htmlCollection) {
   htmlCollection.forEach(function (node) {
     node.removeAttribute('disabled');
   });
@@ -275,7 +275,7 @@ function onMapPinMainMousedown(evt) {
       y: MAP_MAIN_PIN.offsetTop - shift.y
     };
 
-    if (currentCoords.y >= limitDragArea.minY && currentCoords.y <= limitDragArea.maxY && currentCoords.x >= limitDragArea.minX && currentCoords.x <= limitDragArea.maxX) {
+    if (currentCoords.y >= limitDragArea.minY && currentCoords.y <= MAP_MAX_Y && currentCoords.x >= limitDragArea.minX && currentCoords.x <= limitDragArea.maxX) {
 
       startCoords = {
         x: moveEvt.clientX,
@@ -284,7 +284,7 @@ function onMapPinMainMousedown(evt) {
 
       MAP_MAIN_PIN.style.top = currentCoords.y + 'px';
       MAP_MAIN_PIN.style.left = currentCoords.x + 'px';
-      writeAddressField(MAP_MAIN_PIN_SIZE.sizeWithPoint);
+      setAddressField(MAP_MAIN_PIN_SIZE.sizeWithPoint);
     }
   }
 
@@ -305,7 +305,7 @@ function onMapPinMainMousedown(evt) {
 
   document.addEventListener('mousemove', onMapPinMainMousemove);
   document.addEventListener('mouseup', onMapPinMainMouseup);
-  writeAddressField(MAP_MAIN_PIN_SIZE.sizeWithPoint);
+  setAddressField(MAP_MAIN_PIN_SIZE.sizeWithPoint);
   if (MAP.classList.contains('map--faded')) {
     activatePage();
   }
@@ -315,10 +315,10 @@ function activatePage() {
   MAP.classList.remove('map--faded');
   AD_FORM.classList.remove('ad-form--disabled');
   createMapElements(SIMILAR_AD_COUNT);
-  unlockForms(FORMS_NODES);
+  enableElements(FORMS_NODES);
 }
 
-function writeAddressField(offsetFromCenter) {
+function setAddressField(offsetFromCenter) {
   var top = (offsetFromCenter !== undefined) ? parseFloat(MAP_MAIN_PIN.style.top) + offsetFromCenter : parseFloat(MAP_MAIN_PIN.style.top);
   var left = parseFloat(MAP_MAIN_PIN.style.left);
   AD_FORM.address.value = (left + MAP_MAIN_PIN_SIZE.halfSize) + ', ' + (top + MAP_MAIN_PIN_SIZE.halfSize);
@@ -328,23 +328,19 @@ function getLmitDragArea(area) {
   var values = {
     minX: -MAP_MAIN_PIN_SIZE.halfSize,
     maxX: area.offsetWidth - MAP_MAIN_PIN_SIZE.halfSize,
-    minY: MAP_MIN_Y - MAP_MAIN_PIN_SIZE.halfSizeWithPoint,
-    maxY: MAP_MAX_Y - MAP_MAIN_PIN_SIZE.halfSizeWithPoint
+    minY: MAP_MIN_Y - MAP_MAIN_PIN_SIZE.sizeWithPoint + MAP_MAIN_PIN_SIZE.sizeWithPoint
   };
   return values;
 }
 
 function validateCapacity() {
-  var indexRooms = AD_FORM_ROOMS_SELECT.selectedIndex;
-  var indexCapacity = AD_FORM_CAPACITY_SELECT.selectedIndex;
-
-  var selectedRoomsOption = AD_FORM_ROOMS_SELECT[indexRooms];
-  var selectedCapacityOption = AD_FORM_CAPACITY_SELECT[indexCapacity];
+  var selectedRoomsOption = AD_FORM_ROOMS_SELECT[AD_FORM_ROOMS_SELECT.selectedIndex];
+  var selectedCapacityOption = AD_FORM_CAPACITY_SELECT[AD_FORM_CAPACITY_SELECT.selectedIndex];
 
   if (+selectedCapacityOption.value > +selectedRoomsOption.value) {
-
     return VALIDATION_ERROR_MESSAGES.manyGuest;
-  } else if (+selectedRoomsOption.value === ROOMS_NOT_GUEST_VALUE && +selectedCapacityOption.value !== CAPACITY_NOT_GUEST_VALUE) {
+  }
+  if (+selectedRoomsOption.value === ROOMS_NOT_GUEST_VALUE && +selectedCapacityOption.value !== CAPACITY_NOT_GUEST_VALUE) {
     return VALIDATION_ERROR_MESSAGES.notGuest;
   }
   return '';
@@ -363,8 +359,8 @@ function onRoomsSelectChange() {
 }
 
 
-lockForms(FORMS_NODES);
+disableElements(FORMS_NODES);
 MAP_MAIN_PIN.addEventListener('mousedown', onMapPinMainMousedown);
 MAP_MAIN_PIN.addEventListener('keydown', onMapPinMainKeydown);
 AD_FORM.addEventListener('change', onRoomsSelectChange);
-writeAddressField();
+setAddressField();
