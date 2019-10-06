@@ -64,6 +64,10 @@ var ROOMS_NOT_GUEST_VALUE = 100;
 var CAPACITY_NOT_GUEST_VALUE = 0;
 var AD_FORM_ROOMS_SELECT = AD_FORM.rooms;
 var AD_FORM_CAPACITY_SELECT = AD_FORM.capacity;
+
+var AD_FORM_VALIDATE_VALUES = {
+  titleMin: 30
+};
 var VALIDATION_ERROR_MESSAGES = {
   notGuest: 'Не для гостей',
   manyGuest: 'Гостей большей, чем комнат!'
@@ -337,21 +341,9 @@ function getLimitDragArea(area) {
   return values;
 }
 
-function validateCapacity() {
-  var selectedRoomsOption = AD_FORM_ROOMS_SELECT[AD_FORM_ROOMS_SELECT.selectedIndex];
-  var selectedCapacityOption = AD_FORM_CAPACITY_SELECT[AD_FORM_CAPACITY_SELECT.selectedIndex];
-
-  if (+selectedCapacityOption.value > +selectedRoomsOption.value) {
-    return VALIDATION_ERROR_MESSAGES.manyGuest;
-  }
-  if (+selectedRoomsOption.value === ROOMS_NOT_GUEST_VALUE && +selectedCapacityOption.value !== CAPACITY_NOT_GUEST_VALUE) {
-    return VALIDATION_ERROR_MESSAGES.notGuest;
-  }
-  return '';
-}
 
 function onRoomsSelectChange() {
-  var validationResult = validateCapacity();
+  var validationResult = validateCapacityField();
 
   if (validationResult) {
     AD_FORM_CAPACITY_SELECT.style.borderColor = 'red';
@@ -415,6 +407,25 @@ function addHandlersToPins() {
   }
 }
 
+function validateCapacityField() {
+  var selectedRoomsOption = AD_FORM_ROOMS_SELECT[AD_FORM_ROOMS_SELECT.selectedIndex];
+  var selectedCapacityOption = AD_FORM_CAPACITY_SELECT[AD_FORM_CAPACITY_SELECT.selectedIndex];
+
+  if (+selectedCapacityOption.value > +selectedRoomsOption.value) {
+    return VALIDATION_ERROR_MESSAGES.manyGuest;
+  }
+  if (+selectedRoomsOption.value === ROOMS_NOT_GUEST_VALUE && +selectedCapacityOption.value !== CAPACITY_NOT_GUEST_VALUE) {
+    return VALIDATION_ERROR_MESSAGES.notGuest;
+  }
+  return '';
+}
+
+function validateTitleField() {
+  var titleFieldValue = AD_FORM.title.value.trim();
+  if (!titleFieldValue || titleFieldValue.length < AD_FORM_VALIDATE_VALUES.titleMin) {
+    AD_FORM.title.style.borderColor = 'red';
+  }
+}
 
 disableElements(FORMS_NODES);
 MAP_MAIN_PIN.addEventListener('mousedown', onMapPinMainMousedown);
