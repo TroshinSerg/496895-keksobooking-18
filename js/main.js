@@ -66,7 +66,9 @@ var AD_FORM_ROOMS_SELECT = AD_FORM.rooms;
 var AD_FORM_CAPACITY_SELECT = AD_FORM.capacity;
 
 var AD_FORM_VALIDATE_VALUES = {
-  titleMin: 30
+  titleMin: 30,
+  priceMax: 1000000,
+  priceMin: 5000
 };
 var VALIDATION_ERROR_MESSAGES = {
   notGuest: 'Не для гостей',
@@ -424,6 +426,13 @@ function validateTitleField() {
   var titleFieldValue = AD_FORM.title.value.trim();
   if (!titleFieldValue || titleFieldValue.length < AD_FORM_VALIDATE_VALUES.titleMin) {
     AD_FORM.title.style.borderColor = 'red';
+  }
+}
+
+function validatePriceField() {
+  var priceFieldValue = parseInt(AD_FORM.price.value, 10);
+  if (!priceFieldValue || priceFieldValue < AD_FORM_VALIDATE_VALUES.priceMin || priceFieldValue > AD_FORM_VALIDATE_VALUES.priceMax) {
+    AD_FORM.price.style.borderColor = 'red';
   }
 }
 
