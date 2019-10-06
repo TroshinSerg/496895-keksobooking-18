@@ -382,6 +382,7 @@ function onMapPinClick(evt) {
 function onMapPopupCloseClick() {
   removePinActiveClass();
   removeMapPopup();
+  document.removeEventListener('keydown', onMapPopupEscPress);
 }
 
 function onMapPopupEscPress(evt) {
@@ -413,6 +414,7 @@ function addHandlersToPins() {
     mapPins[i].addEventListener('click', onMapPinClick);
   }
 }
+
 
 disableElements(FORMS_NODES);
 MAP_MAIN_PIN.addEventListener('mousedown', onMapPinMainMousedown);
