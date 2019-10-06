@@ -48,7 +48,8 @@ var SELECTORS_POPUP_NODES = {
   capacity: '.popup__text--capacity',
   time: '.popup__text--time',
   description: '.popup__description',
-  avatar: '.popup__avatar'
+  avatar: '.popup__avatar',
+  close: '.popup__close'
 };
 
 var KEYCODES = {
@@ -67,6 +68,7 @@ var VALIDATION_ERROR_MESSAGES = {
   notGuest: 'Не для гостей',
   manyGuest: 'Гостей большей, чем комнат!'
 };
+var MOCKS = getMocks(SIMILAR_AD_COUNT);
 
 function getRandomNum(min, max) {
   return Math.floor(min + Math.random() * (max + 1 - min));
@@ -224,13 +226,12 @@ function createMapPopup(item) {
 
   fragment.appendChild(clonedPopup);
   MAP.insertBefore(fragment, MAP_FILTERS_CONTAINER);
+
+  clonedNodes.close.addEventListener('click', onMapPopupCloseClick);
 }
 
-function createMapElements(count) {
-  var mocks = getMocks(count);
-
+function createMapElements(mocks) {
   MAP_PIN_LIST.appendChild(createPinsFragment(mocks));
-  createMapPopup(mocks[0]);
 }
 
 function disableElements(htmlCollection) {
@@ -259,7 +260,7 @@ function onMapPinMainMousedown(evt) {
   };
 
   var isDrag = false;
-  var limitDragArea = getLmitDragArea(MAP_PIN_LIST);
+  var limitDragArea = getLimitDragArea(MAP_PIN_LIST);
 
   function onMapPinMainMousemove(moveEvt) {
     moveEvt.preventDefault();
@@ -306,25 +307,28 @@ function onMapPinMainMousedown(evt) {
   document.addEventListener('mousemove', onMapPinMainMousemove);
   document.addEventListener('mouseup', onMapPinMainMouseup);
   setAddressField(MAP_MAIN_PIN_SIZE.sizeWithPoint);
+
   if (MAP.classList.contains('map--faded')) {
     activatePage();
+    addHandlersToPins();
   }
 }
 
 function activatePage() {
   MAP.classList.remove('map--faded');
   AD_FORM.classList.remove('ad-form--disabled');
-  createMapElements(SIMILAR_AD_COUNT);
+  createMapElements(MOCKS);
   enableElements(FORMS_NODES);
 }
 
 function setAddressField(offsetFromCenter) {
-  var top = (offsetFromCenter !== undefined) ? parseFloat(MAP_MAIN_PIN.style.top) + offsetFromCenter : parseFloat(MAP_MAIN_PIN.style.top);
+  var topCoord = parseFloat(MAP_MAIN_PIN.style.top);
+  var top = (offsetFromCenter !== undefined) ? topCoord + offsetFromCenter : topCoord;
   var left = parseFloat(MAP_MAIN_PIN.style.left);
   AD_FORM.address.value = (left + MAP_MAIN_PIN_SIZE.halfSize) + ', ' + (top + MAP_MAIN_PIN_SIZE.halfSize);
 }
 
-function getLmitDragArea(area) {
+function getLimitDragArea(area) {
   var values = {
     minX: -MAP_MAIN_PIN_SIZE.halfSize,
     maxX: area.offsetWidth - MAP_MAIN_PIN_SIZE.halfSize,
@@ -358,6 +362,57 @@ function onRoomsSelectChange() {
   }
 }
 
+function onMapPinClick(evt) {
+  evt.preventDefault();
+  var currentPin = evt.currentTarget;
+  var pins = currentPin.parentNode.children;
+
+  onMapPopupCloseClick();
+
+  for (var i = 0; i < pins.length; i++) {
+    if (pins[i] === currentPin) {
+      createMapPopup(MOCKS[i - 2]);
+    }
+  }
+
+  currentPin.classList.add('map__pin--active');
+  document.addEventListener('keydown', onMapPopupEscPress);
+}
+
+function onMapPopupCloseClick() {
+  removePinActiveClass();
+  removeMapPopup();
+}
+
+function onMapPopupEscPress(evt) {
+  if (evt.keyCode === KEYCODES.esc) {
+    onMapPopupCloseClick();
+  }
+}
+
+function removeMapPopup() {
+  var mapPopup = MAP.querySelector('.popup');
+  if (mapPopup) {
+    MAP.removeChild(mapPopup);
+    document.removeEventListener('keydown', onMapPopupEscPress);
+  }
+  return false;
+}
+
+function removePinActiveClass() {
+  var pin = MAP_PIN_LIST.querySelector('.map__pin--active');
+  if (pin) {
+    pin.classList.remove('map__pin--active');
+  }
+}
+
+function addHandlersToPins() {
+  var mapPins = MAP_PIN_LIST.querySelectorAll('.map__pin');
+
+  for (var i = 1; i < mapPins.length; i++) {
+    mapPins[i].addEventListener('click', onMapPinClick);
+  }
+}
 
 disableElements(FORMS_NODES);
 MAP_MAIN_PIN.addEventListener('mousedown', onMapPinMainMousedown);
