@@ -29,6 +29,12 @@ var OFFER_TYPES_LIBS = {
   house: 'Дом',
   bungalo: 'Бунгало'
 };
+var OFFER_TYPES_MIN_PRICES = {
+  palace: 10000,
+  flat: 1000,
+  house: 5000,
+  bungalo: 0
+};
 var OFFER_TIMES = ['12:00', '13:00', '14:00'];
 var OFFER_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var OFFER_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
@@ -325,6 +331,7 @@ function activatePage() {
   AD_FORM.classList.remove('ad-form--disabled');
   createMapElements(MOCKS);
   enableElements(FORMS_NODES);
+  onTypeSelectChange();
 }
 
 function setAddressField(offsetFromCenter) {
@@ -429,6 +436,12 @@ function validateTitleField() {
   }
 }
 
+function onTypeSelectChange() {
+  var selectedValue = AD_FORM.type[AD_FORM.type.selectedIndex].value;
+  AD_FORM.price.min = OFFER_TYPES_MIN_PRICES[selectedValue];
+  AD_FORM.price.placeholder = OFFER_TYPES_MIN_PRICES[selectedValue];
+}
+
 function validatePriceField() {
   var priceFieldValue = parseInt(AD_FORM.price.value, 10);
   if (!priceFieldValue || priceFieldValue < AD_FORM_VALIDATE_VALUES.priceMin || priceFieldValue > AD_FORM_VALIDATE_VALUES.priceMax) {
@@ -439,5 +452,6 @@ function validatePriceField() {
 disableElements(FORMS_NODES);
 MAP_MAIN_PIN.addEventListener('mousedown', onMapPinMainMousedown);
 MAP_MAIN_PIN.addEventListener('keydown', onMapPinMainKeydown);
+AD_FORM.type.addEventListener('change', onTypeSelectChange);
 AD_FORM.addEventListener('change', onRoomsSelectChange);
 setAddressField();
