@@ -73,8 +73,7 @@ var AD_FORM_CAPACITY_SELECT = AD_FORM.capacity;
 
 var AD_FORM_VALIDATE_VALUES = {
   titleMin: 30,
-  priceMax: 1000000,
-  priceMin: 5000
+  priceMax: 1000000
 };
 var VALIDATION_ERROR_MESSAGES = {
   notGuest: 'Не для гостей',
@@ -444,14 +443,23 @@ function onTypeSelectChange() {
 
 function validatePriceField() {
   var priceFieldValue = parseInt(AD_FORM.price.value, 10);
-  if (!priceFieldValue || priceFieldValue < AD_FORM_VALIDATE_VALUES.priceMin || priceFieldValue > AD_FORM_VALIDATE_VALUES.priceMax) {
+  var minValue = parseInt(AD_FORM.price.min, 10);
+  if (!priceFieldValue || priceFieldValue < minValue || priceFieldValue > AD_FORM_VALIDATE_VALUES.priceMax) {
     AD_FORM.price.style.borderColor = 'red';
   }
+}
+
+function onTimeSelectsChange(evt) {
+  var currentSelectName = evt.currentTarget.name;
+  var selectName = currentSelectName === 'timein' ? 'timeout' : 'timein';
+  AD_FORM[selectName][AD_FORM[currentSelectName].selectedIndex].selected = true;
 }
 
 disableElements(FORMS_NODES);
 MAP_MAIN_PIN.addEventListener('mousedown', onMapPinMainMousedown);
 MAP_MAIN_PIN.addEventListener('keydown', onMapPinMainKeydown);
 AD_FORM.type.addEventListener('change', onTypeSelectChange);
+AD_FORM.timein.addEventListener('change', onTimeSelectsChange);
+AD_FORM.timeout.addEventListener('change', onTimeSelectsChange);
 AD_FORM.addEventListener('change', onRoomsSelectChange);
 setAddressField();
