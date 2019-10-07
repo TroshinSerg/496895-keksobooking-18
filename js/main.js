@@ -71,6 +71,7 @@ var CAPACITY_NOT_GUEST_VALUE = 0;
 var AD_FORM_ROOMS_SELECT = AD_FORM.rooms;
 var AD_FORM_CAPACITY_SELECT = AD_FORM.capacity;
 var AD_FORM_SUBMIT = AD_FORM.querySelector('.ad-form__submit');
+var INVALID_FIELD_BORDER_COLOR = 'red';
 
 var AD_FORM_VALIDATE_VALUES = {
   titleMin: 30,
@@ -400,7 +401,7 @@ function addHandlersToPins() {
 }
 
 function addFieldBorderColor(field) {
-  field.style.borderColor = 'red';
+  field.style.borderColor = INVALID_FIELD_BORDER_COLOR;
 }
 
 function validateCapacityField() {
