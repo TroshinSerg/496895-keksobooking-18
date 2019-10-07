@@ -405,20 +405,21 @@ function addFieldBorderColor(field) {
 }
 
 function validateCapacityField() {
-  var selectedRoomsOption = AD_FORM_ROOMS_SELECT[AD_FORM_ROOMS_SELECT.selectedIndex];
-  var selectedCapacityOption = AD_FORM_CAPACITY_SELECT[AD_FORM_CAPACITY_SELECT.selectedIndex];
+  var selectedRoomsOption = AD_FORM.rooms[AD_FORM.rooms.selectedIndex];
+  var selectedCapacityOption = AD_FORM.capacity[AD_FORM.capacity.selectedIndex];
 
   if (+selectedCapacityOption.value > +selectedRoomsOption.value) {
-    addFieldBorderColor(AD_FORM_CAPACITY_SELECT);
-    AD_FORM_CAPACITY_SELECT.setCustomValidity(VALIDATION_ERROR_MESSAGES.manyGuest);
+    addFieldBorderColor(AD_FORM.capacity);
+    AD_FORM.capacity.setCustomValidity(VALIDATION_ERROR_MESSAGES.manyGuest);
     return false;
   }
   if (+selectedRoomsOption.value === ROOMS_NOT_GUEST_VALUE && +selectedCapacityOption.value !== CAPACITY_NOT_GUEST_VALUE) {
-    addFieldBorderColor(AD_FORM_CAPACITY_SELECT);
-    AD_FORM_CAPACITY_SELECT.setCustomValidity(VALIDATION_ERROR_MESSAGES.notGuest);
+    addFieldBorderColor(AD_FORM.capacity);
+    AD_FORM.capacity.setCustomValidity(VALIDATION_ERROR_MESSAGES.notGuest);
     return false;
   }
-
+  AD_FORM.capacity.setCustomValidity('');
+  AD_FORM.capacity.removeAttribute('style');
   return true;
 }
 
@@ -428,6 +429,7 @@ function validateTitleField() {
     addFieldBorderColor(AD_FORM.title);
     return false;
   }
+  AD_FORM.title.removeAttribute('style');
   return true;
 }
 
@@ -444,6 +446,7 @@ function validatePriceField() {
     addFieldBorderColor(AD_FORM.price);
     return false;
   }
+  AD_FORM.price.removeAttribute('style');
   return true;
 }
 
