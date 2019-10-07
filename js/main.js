@@ -157,6 +157,7 @@ function createPinsFragment(data) {
   data.forEach(function (item, index) {
     var pin = createPin(item);
     pin.dataset.id = index;
+    pin.addEventListener('click', onMapPinClick);
     fragment.appendChild(pin);
   });
 
@@ -323,7 +324,6 @@ function onMapPinMainMousedown(evt) {
 
   if (MAP.classList.contains('map--faded')) {
     activatePage();
-    addHandlersToPins();
   }
 }
 
@@ -387,14 +387,6 @@ function removePinActiveClass() {
   var pin = MAP_PIN_LIST.querySelector('.map__pin--active');
   if (pin) {
     pin.classList.remove('map__pin--active');
-  }
-}
-
-function addHandlersToPins() {
-  var mapPins = MAP_PIN_LIST.querySelectorAll('.map__pin');
-
-  for (var i = 1; i < mapPins.length; i++) {
-    mapPins[i].addEventListener('click', onMapPinClick);
   }
 }
 
