@@ -68,8 +68,6 @@ var FORMS_NODES = document.querySelectorAll('form > select, form > fieldset');
 var AD_FORM = document.forms[1];
 var ROOMS_NOT_GUEST_VALUE = 100;
 var CAPACITY_NOT_GUEST_VALUE = 0;
-var AD_FORM_ROOMS_SELECT = AD_FORM.rooms;
-var AD_FORM_CAPACITY_SELECT = AD_FORM.capacity;
 var AD_FORM_SUBMIT = AD_FORM.querySelector('.ad-form__submit');
 var INVALID_FIELD_BORDER_COLOR = 'red';
 
