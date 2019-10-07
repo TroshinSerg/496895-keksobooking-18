@@ -155,8 +155,10 @@ function createPin(item) {
 function createPinsFragment(data) {
   var fragment = document.createDocumentFragment();
 
-  data.forEach(function (item) {
-    fragment.appendChild(createPin(item));
+  data.forEach(function (item, index) {
+    var pin = createPin(item);
+    pin.dataset.id = index;
+    fragment.appendChild(pin);
   });
 
   return fragment;
@@ -353,15 +355,9 @@ function getLimitDragArea(area) {
 function onMapPinClick(evt) {
   evt.preventDefault();
   var currentPin = evt.currentTarget;
-  var pins = currentPin.parentNode.children;
 
   onMapPopupCloseClick();
-
-  for (var i = 0; i < pins.length; i++) {
-    if (pins[i] === currentPin) {
-      createMapPopup(MOCKS[i - 2]);
-    }
-  }
+  createMapPopup(MOCKS[currentPin.dataset.id]);
 
   currentPin.classList.add('map__pin--active');
   document.addEventListener('keydown', onMapPopupEscPress);
@@ -403,7 +399,7 @@ function addHandlersToPins() {
   }
 }
 
-function addFieldRedBorder(field) {
+function addFieldBorderColor(field) {
   field.style.borderColor = 'red';
 }
 
@@ -412,12 +408,12 @@ function validateCapacityField() {
   var selectedCapacityOption = AD_FORM_CAPACITY_SELECT[AD_FORM_CAPACITY_SELECT.selectedIndex];
 
   if (+selectedCapacityOption.value > +selectedRoomsOption.value) {
-    addFieldRedBorder(AD_FORM_CAPACITY_SELECT);
+    addFieldBorderColor(AD_FORM_CAPACITY_SELECT);
     AD_FORM_CAPACITY_SELECT.setCustomValidity(VALIDATION_ERROR_MESSAGES.manyGuest);
     return false;
   }
   if (+selectedRoomsOption.value === ROOMS_NOT_GUEST_VALUE && +selectedCapacityOption.value !== CAPACITY_NOT_GUEST_VALUE) {
-    addFieldRedBorder(AD_FORM_CAPACITY_SELECT);
+    addFieldBorderColor(AD_FORM_CAPACITY_SELECT);
     AD_FORM_CAPACITY_SELECT.setCustomValidity(VALIDATION_ERROR_MESSAGES.notGuest);
     return false;
   }
@@ -428,7 +424,7 @@ function validateCapacityField() {
 function validateTitleField() {
   var titleFieldValue = AD_FORM.title.value.trim();
   if (!titleFieldValue || titleFieldValue.length < AD_FORM_VALIDATE_VALUES.titleMin) {
-    addFieldRedBorder(AD_FORM.title);
+    addFieldBorderColor(AD_FORM.title);
     return false;
   }
   return true;
@@ -444,7 +440,7 @@ function validatePriceField() {
   var priceFieldValue = parseInt(AD_FORM.price.value, 10);
   var minValue = parseInt(AD_FORM.price.min, 10);
   if (!priceFieldValue || priceFieldValue < minValue || priceFieldValue > AD_FORM_VALIDATE_VALUES.priceMax) {
-    addFieldRedBorder(AD_FORM.price);
+    addFieldBorderColor(AD_FORM.price);
     return false;
   }
   return true;
