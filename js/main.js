@@ -70,6 +70,8 @@ var ROOMS_NOT_GUEST_VALUE = 100;
 var CAPACITY_NOT_GUEST_VALUE = 0;
 var AD_FORM_SUBMIT = AD_FORM.querySelector('.ad-form__submit');
 var INVALID_FIELD_BORDER_COLOR = 'red';
+var SELECT_NAME_TIMEIN = 'timein';
+var SELECT_NAME_TIMEOUT = 'timeout';
 
 var AD_FORM_VALIDATE_VALUES = {
   titleMin: 30,
@@ -442,7 +444,7 @@ function onPriceInput() {
 
 function onTimeSelectsChange(evt) {
   var currentSelectName = evt.currentTarget.name;
-  var selectName = currentSelectName === 'timein' ? 'timeout' : 'timein';
+  var selectName = currentSelectName === SELECT_NAME_TIMEIN ? SELECT_NAME_TIMEOUT : SELECT_NAME_TIMEIN;
   AD_FORM[selectName][AD_FORM[currentSelectName].selectedIndex].selected = true;
 }
 
