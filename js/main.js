@@ -394,7 +394,7 @@ function addFieldBorderColor(field) {
   field.style.borderColor = INVALID_FIELD_BORDER_COLOR;
 }
 
-function validateCapacityField() {
+function onCapacityChange() {
   var selectedRoomsOption = AD_FORM.rooms[AD_FORM.rooms.selectedIndex];
   var selectedCapacityOption = AD_FORM.capacity[AD_FORM.capacity.selectedIndex];
 
@@ -413,7 +413,7 @@ function validateCapacityField() {
   return true;
 }
 
-function validateTitleField() {
+function onTitleInput() {
   var titleFieldValue = AD_FORM.title.value.trim();
   if (!titleFieldValue || titleFieldValue.length < AD_FORM_VALIDATE_VALUES.titleMin) {
     addFieldBorderColor(AD_FORM.title);
@@ -429,7 +429,7 @@ function onTypeSelectChange() {
   AD_FORM.price.placeholder = OFFER_TYPES_MIN_PRICES[selectedValue];
 }
 
-function validatePriceField() {
+function validatePrice() {
   var priceFieldValue = parseInt(AD_FORM.price.value, 10);
   var minValue = parseInt(AD_FORM.price.min, 10);
   if (!priceFieldValue || priceFieldValue < minValue || priceFieldValue > AD_FORM_VALIDATE_VALUES.priceMax) {
@@ -447,11 +447,7 @@ function onTimeSelectsChange(evt) {
 }
 
 function onAdFormSubmit(evt) {
-  validateTitleField();
-  validatePriceField();
-  validateCapacityField();
-
-  if (!validateTitleField() && !validatePriceField() && !validateCapacityField(evt)) {
+  if (!onTitleInput() && !validatePrice() && !onCapacityChange(evt)) {
     evt.preventDefault();
   }
 }
@@ -462,5 +458,9 @@ MAP_MAIN_PIN.addEventListener('keydown', onMapPinMainKeydown);
 AD_FORM.type.addEventListener('change', onTypeSelectChange);
 AD_FORM.timein.addEventListener('change', onTimeSelectsChange);
 AD_FORM.timeout.addEventListener('change', onTimeSelectsChange);
+AD_FORM.title.addEventListener('input', onTitleInput);
+AD_FORM.price.addEventListener('input', validatePrice);
+AD_FORM.rooms.addEventListener('change', onCapacityChange);
+AD_FORM.capacity.addEventListener('change', onCapacityChange);
 AD_FORM_SUBMIT.addEventListener('click', onAdFormSubmit);
 setAddressField();
