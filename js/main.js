@@ -429,7 +429,7 @@ function onTypeSelectChange() {
   AD_FORM.price.placeholder = OFFER_TYPES_MIN_PRICES[selectedValue];
 }
 
-function validatePrice() {
+function onPriceInput() {
   var priceFieldValue = parseInt(AD_FORM.price.value, 10);
   var minValue = parseInt(AD_FORM.price.min, 10);
   if (!priceFieldValue || priceFieldValue < minValue || priceFieldValue > AD_FORM_VALIDATE_VALUES.priceMax) {
@@ -447,7 +447,7 @@ function onTimeSelectsChange(evt) {
 }
 
 function onAdFormSubmit(evt) {
-  if (!onTitleInput() && !validatePrice() && !onCapacityChange(evt)) {
+  if (!onTitleInput() && !onPriceInput() && !onCapacityChange(evt)) {
     evt.preventDefault();
   }
 }
@@ -459,7 +459,7 @@ AD_FORM.type.addEventListener('change', onTypeSelectChange);
 AD_FORM.timein.addEventListener('change', onTimeSelectsChange);
 AD_FORM.timeout.addEventListener('change', onTimeSelectsChange);
 AD_FORM.title.addEventListener('input', onTitleInput);
-AD_FORM.price.addEventListener('input', validatePrice);
+AD_FORM.price.addEventListener('input', onPriceInput);
 AD_FORM.rooms.addEventListener('change', onCapacityChange);
 AD_FORM.capacity.addEventListener('change', onCapacityChange);
 AD_FORM_SUBMIT.addEventListener('click', onAdFormSubmit);
