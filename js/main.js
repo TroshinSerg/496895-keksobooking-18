@@ -29,6 +29,12 @@ var OFFER_TYPES_LIBS = {
   house: 'Дом',
   bungalo: 'Бунгало'
 };
+var OFFER_TYPES_MIN_PRICES = {
+  palace: 10000,
+  flat: 1000,
+  house: 5000,
+  bungalo: 0
+};
 var OFFER_TIMES = ['12:00', '13:00', '14:00'];
 var OFFER_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var OFFER_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
@@ -48,7 +54,8 @@ var SELECTORS_POPUP_NODES = {
   capacity: '.popup__text--capacity',
   time: '.popup__text--time',
   description: '.popup__description',
-  avatar: '.popup__avatar'
+  avatar: '.popup__avatar',
+  close: '.popup__close'
 };
 
 var KEYCODES = {
@@ -61,12 +68,20 @@ var FORMS_NODES = document.querySelectorAll('form > select, form > fieldset');
 var AD_FORM = document.forms[1];
 var ROOMS_NOT_GUEST_VALUE = 100;
 var CAPACITY_NOT_GUEST_VALUE = 0;
-var AD_FORM_ROOMS_SELECT = AD_FORM.rooms;
-var AD_FORM_CAPACITY_SELECT = AD_FORM.capacity;
+var AD_FORM_SUBMIT = AD_FORM.querySelector('.ad-form__submit');
+var INVALID_FIELD_BORDER_COLOR = 'red';
+var SELECT_NAME_TIMEIN = 'timein';
+var SELECT_NAME_TIMEOUT = 'timeout';
+
+var AD_FORM_VALIDATE_VALUES = {
+  titleMin: 30,
+  priceMax: 1000000
+};
 var VALIDATION_ERROR_MESSAGES = {
   notGuest: 'Не для гостей',
   manyGuest: 'Гостей большей, чем комнат!'
 };
+var MOCKS = getMocks(SIMILAR_AD_COUNT);
 
 function getRandomNum(min, max) {
   return Math.floor(min + Math.random() * (max + 1 - min));
@@ -141,8 +156,11 @@ function createPin(item) {
 function createPinsFragment(data) {
   var fragment = document.createDocumentFragment();
 
-  data.forEach(function (item) {
-    fragment.appendChild(createPin(item));
+  data.forEach(function (item, index) {
+    var pin = createPin(item);
+    pin.dataset.id = index;
+    pin.addEventListener('click', onMapPinClick);
+    fragment.appendChild(pin);
   });
 
   return fragment;
@@ -224,13 +242,12 @@ function createMapPopup(item) {
 
   fragment.appendChild(clonedPopup);
   MAP.insertBefore(fragment, MAP_FILTERS_CONTAINER);
+
+  clonedNodes.close.addEventListener('click', onMapPopupCloseClick);
 }
 
-function createMapElements(count) {
-  var mocks = getMocks(count);
-
+function createMapElements(mocks) {
   MAP_PIN_LIST.appendChild(createPinsFragment(mocks));
-  createMapPopup(mocks[0]);
 }
 
 function disableElements(htmlCollection) {
@@ -259,7 +276,7 @@ function onMapPinMainMousedown(evt) {
   };
 
   var isDrag = false;
-  var limitDragArea = getLmitDragArea(MAP_PIN_LIST);
+  var limitDragArea = getLimitDragArea(MAP_PIN_LIST);
 
   function onMapPinMainMousemove(moveEvt) {
     moveEvt.preventDefault();
@@ -306,6 +323,7 @@ function onMapPinMainMousedown(evt) {
   document.addEventListener('mousemove', onMapPinMainMousemove);
   document.addEventListener('mouseup', onMapPinMainMouseup);
   setAddressField(MAP_MAIN_PIN_SIZE.sizeWithPoint);
+
   if (MAP.classList.contains('map--faded')) {
     activatePage();
   }
@@ -314,17 +332,19 @@ function onMapPinMainMousedown(evt) {
 function activatePage() {
   MAP.classList.remove('map--faded');
   AD_FORM.classList.remove('ad-form--disabled');
-  createMapElements(SIMILAR_AD_COUNT);
+  createMapElements(MOCKS);
   enableElements(FORMS_NODES);
+  onTypeSelectChange();
 }
 
 function setAddressField(offsetFromCenter) {
-  var top = (offsetFromCenter !== undefined) ? parseFloat(MAP_MAIN_PIN.style.top) + offsetFromCenter : parseFloat(MAP_MAIN_PIN.style.top);
+  var topCoord = parseFloat(MAP_MAIN_PIN.style.top);
+  var top = (offsetFromCenter !== undefined) ? topCoord + offsetFromCenter : topCoord;
   var left = parseFloat(MAP_MAIN_PIN.style.left);
   AD_FORM.address.value = (left + MAP_MAIN_PIN_SIZE.halfSize) + ', ' + (top + MAP_MAIN_PIN_SIZE.halfSize);
 }
 
-function getLmitDragArea(area) {
+function getLimitDragArea(area) {
   var values = {
     minX: -MAP_MAIN_PIN_SIZE.halfSize,
     maxX: area.offsetWidth - MAP_MAIN_PIN_SIZE.halfSize,
@@ -333,34 +353,117 @@ function getLmitDragArea(area) {
   return values;
 }
 
-function validateCapacity() {
-  var selectedRoomsOption = AD_FORM_ROOMS_SELECT[AD_FORM_ROOMS_SELECT.selectedIndex];
-  var selectedCapacityOption = AD_FORM_CAPACITY_SELECT[AD_FORM_CAPACITY_SELECT.selectedIndex];
+function onMapPinClick(evt) {
+  evt.preventDefault();
+  var currentPin = evt.currentTarget;
+
+  onMapPopupCloseClick();
+  createMapPopup(MOCKS[currentPin.dataset.id]);
+
+  currentPin.classList.add('map__pin--active');
+  document.addEventListener('keydown', onMapPopupEscPress);
+}
+
+function onMapPopupCloseClick() {
+  removePinActiveClass();
+  removeMapPopup();
+  document.removeEventListener('keydown', onMapPopupEscPress);
+}
+
+function onMapPopupEscPress(evt) {
+  if (evt.keyCode === KEYCODES.esc) {
+    onMapPopupCloseClick();
+  }
+}
+
+function removeMapPopup() {
+  var mapPopup = MAP.querySelector('.popup');
+  if (mapPopup) {
+    MAP.removeChild(mapPopup);
+    document.removeEventListener('keydown', onMapPopupEscPress);
+  }
+  return false;
+}
+
+function removePinActiveClass() {
+  var pin = MAP_PIN_LIST.querySelector('.map__pin--active');
+  if (pin) {
+    pin.classList.remove('map__pin--active');
+  }
+}
+
+function addFieldBorderColor(field) {
+  field.style.borderColor = INVALID_FIELD_BORDER_COLOR;
+}
+
+function onCapacityChange() {
+  var selectedRoomsOption = AD_FORM.rooms[AD_FORM.rooms.selectedIndex];
+  var selectedCapacityOption = AD_FORM.capacity[AD_FORM.capacity.selectedIndex];
 
   if (+selectedCapacityOption.value > +selectedRoomsOption.value) {
-    return VALIDATION_ERROR_MESSAGES.manyGuest;
+    addFieldBorderColor(AD_FORM.capacity);
+    AD_FORM.capacity.setCustomValidity(VALIDATION_ERROR_MESSAGES.manyGuest);
+    return false;
   }
   if (+selectedRoomsOption.value === ROOMS_NOT_GUEST_VALUE && +selectedCapacityOption.value !== CAPACITY_NOT_GUEST_VALUE) {
-    return VALIDATION_ERROR_MESSAGES.notGuest;
+    addFieldBorderColor(AD_FORM.capacity);
+    AD_FORM.capacity.setCustomValidity(VALIDATION_ERROR_MESSAGES.notGuest);
+    return false;
   }
-  return '';
+  AD_FORM.capacity.setCustomValidity('');
+  AD_FORM.capacity.removeAttribute('style');
+  return true;
 }
 
-function onRoomsSelectChange() {
-  var validationResult = validateCapacity();
-
-  if (validationResult) {
-    AD_FORM_CAPACITY_SELECT.style.borderColor = 'red';
-    AD_FORM_CAPACITY_SELECT.setCustomValidity(validationResult);
-  } else {
-    AD_FORM_CAPACITY_SELECT.removeAttribute('style');
-    AD_FORM_CAPACITY_SELECT.setCustomValidity('');
+function onTitleInput() {
+  var titleFieldValue = AD_FORM.title.value.trim();
+  if (!titleFieldValue || titleFieldValue.length < AD_FORM_VALIDATE_VALUES.titleMin) {
+    addFieldBorderColor(AD_FORM.title);
+    return false;
   }
+  AD_FORM.title.removeAttribute('style');
+  return true;
 }
 
+function onTypeSelectChange() {
+  var selectedValue = AD_FORM.type[AD_FORM.type.selectedIndex].value;
+  AD_FORM.price.min = OFFER_TYPES_MIN_PRICES[selectedValue];
+  AD_FORM.price.placeholder = OFFER_TYPES_MIN_PRICES[selectedValue];
+}
+
+function onPriceInput() {
+  var priceFieldValue = parseInt(AD_FORM.price.value, 10);
+  var minValue = parseInt(AD_FORM.price.min, 10);
+  if (!priceFieldValue || priceFieldValue < minValue || priceFieldValue > AD_FORM_VALIDATE_VALUES.priceMax) {
+    addFieldBorderColor(AD_FORM.price);
+    return false;
+  }
+  AD_FORM.price.removeAttribute('style');
+  return true;
+}
+
+function onTimeSelectsChange(evt) {
+  var currentSelectName = evt.currentTarget.name;
+  var selectName = currentSelectName === SELECT_NAME_TIMEIN ? SELECT_NAME_TIMEOUT : SELECT_NAME_TIMEIN;
+  AD_FORM[selectName][AD_FORM[currentSelectName].selectedIndex].selected = true;
+}
+
+function onAdFormSubmit(evt) {
+  if (!onTitleInput() && !onPriceInput() && !onCapacityChange(evt)) {
+    evt.preventDefault();
+  }
+}
 
 disableElements(FORMS_NODES);
 MAP_MAIN_PIN.addEventListener('mousedown', onMapPinMainMousedown);
 MAP_MAIN_PIN.addEventListener('keydown', onMapPinMainKeydown);
-AD_FORM.addEventListener('change', onRoomsSelectChange);
+AD_FORM.type.addEventListener('change', onTypeSelectChange);
+AD_FORM.timein.addEventListener('change', onTimeSelectsChange);
+AD_FORM.timeout.addEventListener('change', onTimeSelectsChange);
+AD_FORM.title.addEventListener('input', onTitleInput);
+AD_FORM.type.addEventListener('change', onPriceInput);
+AD_FORM.price.addEventListener('input', onPriceInput);
+AD_FORM.rooms.addEventListener('change', onCapacityChange);
+AD_FORM.capacity.addEventListener('change', onCapacityChange);
+AD_FORM_SUBMIT.addEventListener('click', onAdFormSubmit);
 setAddressField();
