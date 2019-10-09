@@ -461,6 +461,7 @@ AD_FORM.type.addEventListener('change', onTypeSelectChange);
 AD_FORM.timein.addEventListener('change', onTimeSelectsChange);
 AD_FORM.timeout.addEventListener('change', onTimeSelectsChange);
 AD_FORM.title.addEventListener('input', onTitleInput);
+AD_FORM.type.addEventListener('change', onPriceInput);
 AD_FORM.price.addEventListener('input', onPriceInput);
 AD_FORM.rooms.addEventListener('change', onCapacityChange);
 AD_FORM.capacity.addEventListener('change', onCapacityChange);
