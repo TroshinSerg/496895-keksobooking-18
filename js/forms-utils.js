@@ -52,6 +52,10 @@
     field.style.borderColor = INVALID_FIELD_BORDER_COLOR;
   }
 
+  function removeFieldBorderColor(field) {
+    field.removeAttribute('style');
+  }
+
   function onCapacityChange() {
     var selectedRoomsOption = AD_FORM.rooms[AD_FORM.rooms.selectedIndex];
     var selectedCapacityOption = AD_FORM.capacity[AD_FORM.capacity.selectedIndex];
@@ -66,7 +70,7 @@
       AD_FORM.capacity.setCustomValidity(VALIDATION_ERROR_MESSAGES.notGuest);
       return false;
     }
-    AD_FORM.capacity.setCustomValidity('');
+    removeFieldBorderColor(AD_FORM.capacity);
     AD_FORM.capacity.removeAttribute('style');
     return true;
   }
@@ -77,7 +81,7 @@
       addFieldBorderColor(AD_FORM.title);
       return false;
     }
-    AD_FORM.title.removeAttribute('style');
+    removeFieldBorderColor(AD_FORM.title);
     return true;
   }
 
@@ -88,7 +92,7 @@
       addFieldBorderColor(AD_FORM.price);
       return false;
     }
-    AD_FORM.price.removeAttribute('style');
+    removeFieldBorderColor(AD_FORM.price);
     return true;
   }
 
