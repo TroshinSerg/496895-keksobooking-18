@@ -17,6 +17,19 @@
     space: 32
   };
 
+  var HANDLERS = [
+    {
+      node: MAP_MAIN_PIN,
+      eventType: 'mousedown',
+      handler: onMapPinMainMousedown
+    },
+    {
+      node: MAP_MAIN_PIN,
+      eventType: 'keydown',
+      handler: onMapPinMainKeydown
+    },
+  ];
+
   window.mapUtils = {
     mapMainPin: MAP_MAIN_PIN,
     onMapPopupCloseClick: function () {
@@ -156,7 +169,6 @@
     }
   }
 
-  MAP_MAIN_PIN.addEventListener('mousedown', onMapPinMainMousedown);
-  MAP_MAIN_PIN.addEventListener('keydown', onMapPinMainKeydown);
+  window.formsUtils.addHandlers(HANDLERS);
 
 })();

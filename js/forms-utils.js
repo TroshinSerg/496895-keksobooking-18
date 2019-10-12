@@ -39,8 +39,61 @@
       var selectedValue = AD_FORM.type[AD_FORM.type.selectedIndex].value;
       AD_FORM.price.min = OFFER_TYPES_MIN_PRICES[selectedValue];
       AD_FORM.price.placeholder = OFFER_TYPES_MIN_PRICES[selectedValue];
+    },
+    addHandlers: function (handlers) {
+      handlers.forEach(function (item) {
+        item.node.addEventListener(item.eventType, item.handler);
+      });
     }
   };
+
+  var HANDLERS = [
+    {
+      node: AD_FORM.type,
+      eventType: 'change',
+      handler: window.formsUtils.onTypeSelectChange
+    },
+    {
+      node: AD_FORM.timein,
+      eventType: 'change',
+      handler: onTimeSelectsChange
+    },
+    {
+      node: AD_FORM.timeout,
+      eventType: 'change',
+      handler: onTimeSelectsChange
+    },
+    {
+      node: AD_FORM.title,
+      eventType: 'input',
+      handler: onTitleInput
+    },
+    {
+      node: AD_FORM.type,
+      eventType: 'change',
+      handler: onPriceInput
+    },
+    {
+      node: AD_FORM.price,
+      eventType: 'input',
+      handler: onPriceInput
+    },
+    {
+      node: AD_FORM.rooms,
+      eventType: 'change',
+      handler: onCapacityChange
+    },
+    {
+      node: AD_FORM.capacity,
+      eventType: 'change',
+      handler: onCapacityChange
+    },
+    {
+      node: AD_FORM_SUBMIT,
+      eventType: 'click',
+      handler: onAdFormSubmit
+    }
+  ];
 
   function disableElements(htmlCollection) {
     htmlCollection.forEach(function (node) {
@@ -109,14 +162,6 @@
   }
 
   disableElements(FORMS_NODES);
-  AD_FORM.type.addEventListener('change', window.formsUtils.onTypeSelectChange);
-  AD_FORM.timein.addEventListener('change', onTimeSelectsChange);
-  AD_FORM.timeout.addEventListener('change', onTimeSelectsChange);
-  AD_FORM.title.addEventListener('input', onTitleInput);
-  AD_FORM.type.addEventListener('change', onPriceInput);
-  AD_FORM.price.addEventListener('input', onPriceInput);
-  AD_FORM.rooms.addEventListener('change', onCapacityChange);
-  AD_FORM.capacity.addEventListener('change', onCapacityChange);
-  AD_FORM_SUBMIT.addEventListener('click', onAdFormSubmit);
+  window.formsUtils.addHandlers(HANDLERS);
 
 })();
