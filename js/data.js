@@ -24,29 +24,12 @@
     bungalo: 'Бунгало'
   };
 
-  window.data = {
+  var DATA = {
     map: MAP,
     mapMinY: MAP_MIN_Y,
     mapMaxY: MAP_MAX_Y,
     offerTypesLibs: OFFER_TYPES_LIBS,
-    mocks: getMocks(SIMILAR_AD_COUNT),
-    getRandomNum: function (min, max) {
-      return Math.floor(min + Math.random() * (max + 1 - min));
-    },
-    getRandomElement: function (array, isRemove) {
-      var randomIndex = this.getRandomNum(0, array.length - 1);
-      return (isRemove) ? array.splice(randomIndex, 1).toString() : array[randomIndex];
-    },
-    createRandomArray: function (array) {
-      var copyOfArray = array.slice();
-      var randomArray = [];
-      var counter = this.getRandomNum(1, copyOfArray.length);
-
-      for (var i = 0; i < counter; i++) {
-        randomArray.push(this.getRandomElement(copyOfArray, true));
-      }
-      return randomArray;
-    }
+    mocks: getMocks(SIMILAR_AD_COUNT)
   };
 
   function getMocks(count) {
@@ -54,8 +37,8 @@
 
     for (var i = 0; i < count; i++) {
       var serialNumber = String(i + 1).padStart(2, '0');
-      var locationX = getRandomNum(MAP_PIN_HALF_WIDTH, MAP_WIDTH - MAP_PIN_HALF_WIDTH);
-      var locationY = getRandomNum(MAP_MIN_Y + MAP_PIN_HEIGHT, MAP_MAX_Y);
+      var locationX = window.utils.getRandomNum(MAP_PIN_HALF_WIDTH, MAP_WIDTH - MAP_PIN_HALF_WIDTH);
+      var locationY = window.utils.getRandomNum(MAP_MIN_Y + MAP_PIN_HEIGHT, MAP_MAX_Y);
 
       mocks.push({
         'author': {
@@ -65,15 +48,15 @@
         'offer': {
           'title': 'Заголовок предложения №' + serialNumber,
           'address': [locationX, locationY].join(', '),
-          'price': getRandomNum(MIN_PRICE, MAX_PRICE),
-          'type': getRandomElement(Object.keys(OFFER_TYPES_LIBS)),
-          'rooms': getRandomNum(MIN_COUNT_ROOM, MAX_COUNT_ROOM),
-          'guests': getRandomNum(0, MAX_COUNT_ROOM),
-          'checkin': getRandomElement(OFFER_TIMES),
-          'checkout': getRandomElement(OFFER_TIMES),
-          'features': createRandomArray(OFFER_FEATURES),
+          'price': window.utils.getRandomNum(MIN_PRICE, MAX_PRICE),
+          'type': window.utils.getRandomElement(Object.keys(OFFER_TYPES_LIBS)),
+          'rooms': window.utils.getRandomNum(MIN_COUNT_ROOM, MAX_COUNT_ROOM),
+          'guests': window.utils.getRandomNum(0, MAX_COUNT_ROOM),
+          'checkin': window.utils.getRandomElement(OFFER_TIMES),
+          'checkout': window.utils.getRandomElement(OFFER_TIMES),
+          'features': window.utils.createRandomArray(OFFER_FEATURES),
           'description': 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Itaque dignissimos optio nesciunt sapiente tempore totam. Provident velit quas eligendi tempora molestias necessitatibus fugiat natus odit sunt, numquam unde? Saepe, assumenda!',
-          'photos': createRandomArray(OFFER_PHOTOS)
+          'photos': window.utils.createRandomArray(OFFER_PHOTOS)
         },
 
         'location': {
@@ -86,25 +69,5 @@
     return mocks;
   }
 
-  function getRandomNum(min, max) {
-    return Math.floor(min + Math.random() * (max + 1 - min));
-  }
-
-  function getRandomElement(array, isRemove) {
-    var randomIndex = getRandomNum(0, array.length - 1);
-    return (isRemove) ? array.splice(randomIndex, 1).toString() : array[randomIndex];
-  }
-
-  function createRandomArray(array) {
-    var copyOfArray = array.slice();
-    var randomArray = [];
-    var counter = getRandomNum(1, copyOfArray.length);
-
-    for (var i = 0; i < counter; i++) {
-      randomArray.push(getRandomElement(copyOfArray, true));
-    }
-
-    return randomArray;
-  }
-
+  window.data = DATA;
 })();

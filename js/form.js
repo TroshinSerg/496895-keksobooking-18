@@ -27,7 +27,7 @@
     manyGuest: 'Гостей большей, чем комнат!'
   };
 
-  window.formsUtils = {
+  var UTILS = {
     adForm: AD_FORM,
     formsNodes: FORMS_NODES,
     enableElements: function (htmlCollection) {
@@ -51,7 +51,7 @@
     {
       node: AD_FORM.type,
       eventType: 'change',
-      handler: window.formsUtils.onTypeSelectChange
+      handler: UTILS.onTypeSelectChange
     },
     {
       node: AD_FORM.timein,
@@ -162,6 +162,6 @@
   }
 
   disableElements(FORMS_NODES);
-  window.formsUtils.addHandlers(HANDLERS);
-
+  UTILS.addHandlers(HANDLERS);
+  window.form = UTILS;
 })();

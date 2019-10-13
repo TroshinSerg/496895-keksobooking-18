@@ -16,16 +16,18 @@
     return clonedPin;
   }
 
-  window.createPinsFragment = function (data) {
+  function createPinsFragment(data) {
     var fragment = document.createDocumentFragment();
 
     data.forEach(function (item, index) {
       var pin = createPin(item);
       pin.dataset.id = index;
-      pin.addEventListener('click', window.mapUtils.onMapPinClick);
+      pin.addEventListener('click', window.map.onMapPinClick);
       fragment.appendChild(pin);
     });
 
     return fragment;
-  };
+  }
+
+  window.pin.createPinsFragment = createPinsFragment;
 })();

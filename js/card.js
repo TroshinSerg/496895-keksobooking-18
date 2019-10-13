@@ -24,16 +24,6 @@
     close: '.popup__close'
   };
 
-  function getEndingWord(num, endings) {
-    var remainder = num % 100;
-    if (remainder === 0 || remainder > 4 && remainder !== 1) {
-      return endings[2];
-    } else if (remainder === 1) {
-      return endings[1];
-    }
-    return endings[0];
-  }
-
   function createObjectOfNodes(htmlCollection) {
     var nodes = {};
     htmlCollection.forEach(function (node) {
@@ -76,7 +66,7 @@
     return nodes;
   }
 
-  window.createMapPopup = function (item) {
+  function createMapPopup(item) {
     var clonedPopup = MAP_CARD_TEMPLATE.cloneNode(true);
     var fragment = document.createDocumentFragment();
     var clonedNodes = clonePopupNodes(SELECTORS_POPUP_NODES, clonedPopup);
@@ -85,7 +75,7 @@
     clonedNodes.address.textContent = item.offer.address;
     clonedNodes.price.textContent = item.offer.price + '₽/ночь';
     clonedNodes.type.textContent = window.data.offerTypesLibs[item.offer.type];
-    clonedNodes.capacity.textContent = item.offer.rooms + ' ' + getEndingWord(item.offer.rooms, VARIANTS_WORD_ROOMS) + ' для ' + item.offer.guests + ' ' + getEndingWord(item.offer.guests, VARIANTS_WORD_GUESTS) + '.';
+    clonedNodes.capacity.textContent = item.offer.rooms + ' ' + window.utils.getEndingWord(item.offer.rooms, VARIANTS_WORD_ROOMS) + ' для ' + item.offer.guests + ' ' + window.utils.getEndingWord(item.offer.guests, VARIANTS_WORD_GUESTS) + '.';
     clonedNodes.time.textContent = 'Заезд после ' + item.offer.checkin + ', выезд до ' + item.offer.checkout;
     clonedNodes.description.textContent = item.offer.description;
     clonedNodes.avatar.src = item.author.avatar;
@@ -101,6 +91,8 @@
     fragment.appendChild(clonedPopup);
     window.data.map.insertBefore(fragment, MAP_FILTERS_CONTAINER);
 
-    clonedNodes.close.addEventListener('click', window.mapUtils.onMapPopupCloseClick);
-  };
+    clonedNodes.close.addEventListener('click', window.map.onMapPopupCloseClick);
+  }
+
+  window.card.createMapPopup = createMapPopup;
 })();

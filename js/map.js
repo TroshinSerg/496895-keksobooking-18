@@ -30,7 +30,7 @@
     },
   ];
 
-  window.mapUtils = {
+  var UTILS = {
     mapMainPin: MAP_MAIN_PIN,
     onMapPopupCloseClick: function () {
       removePinActiveClass();
@@ -41,8 +41,8 @@
       evt.preventDefault();
       var currentPin = evt.currentTarget;
 
-      window.mapUtils.onMapPopupCloseClick();
-      window.createMapPopup(window.data.mocks[currentPin.dataset.id]);
+      window.map.onMapPopupCloseClick();
+      window.card.createMapPopup(window.data.mocks[currentPin.dataset.id]);
 
       currentPin.classList.add('map__pin--active');
       document.addEventListener('keydown', onMapPopupEscPress);
@@ -52,7 +52,7 @@
   setAddressField();
 
   function createMapElements(mocks) {
-    MAP_PIN_LIST.appendChild(window.createPinsFragment(mocks));
+    MAP_PIN_LIST.appendChild(window.pin.createPinsFragment(mocks));
   }
 
   function onMapPinMainKeydown(evt) {
@@ -124,17 +124,17 @@
 
   function activatePage() {
     window.data.map.classList.remove('map--faded');
-    window.formsUtils.adForm.classList.remove('ad-form--disabled');
+    window.form.adForm.classList.remove('ad-form--disabled');
     createMapElements(window.data.mocks);
-    window.formsUtils.enableElements(window.formsUtils.formsNodes);
-    window.formsUtils.onTypeSelectChange();
+    window.form.enableElements(window.form.formsNodes);
+    window.form.onTypeSelectChange();
   }
 
   function setAddressField(offsetFromCenter) {
     var topCoord = parseFloat(MAP_MAIN_PIN.style.top);
     var top = (offsetFromCenter !== undefined) ? topCoord + offsetFromCenter : topCoord;
     var left = parseFloat(MAP_MAIN_PIN.style.left);
-    window.formsUtils.adForm.address.value = (left + MAP_MAIN_PIN_SIZE.halfSize) + ', ' + (top + MAP_MAIN_PIN_SIZE.halfSize);
+    window.form.adForm.address.value = (left + MAP_MAIN_PIN_SIZE.halfSize) + ', ' + (top + MAP_MAIN_PIN_SIZE.halfSize);
   }
 
   function getLimitDragArea(area) {
@@ -149,7 +149,7 @@
 
   function onMapPopupEscPress(evt) {
     if (evt.keyCode === KEYCODES.esc) {
-      window.mapUtils.onMapPopupCloseClick();
+      UTILS.onMapPopupCloseClick();
     }
   }
 
@@ -169,6 +169,6 @@
     }
   }
 
-  window.formsUtils.addHandlers(HANDLERS);
-
+  window.form.addHandlers(HANDLERS);
+  window.map = UTILS;
 })();
