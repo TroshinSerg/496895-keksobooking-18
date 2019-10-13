@@ -143,6 +143,7 @@
       maxX: area.offsetWidth - MAP_MAIN_PIN_SIZE.halfSize,
       minY: window.data.mapMinY - MAP_MAIN_PIN_SIZE.sizeWithPoint + MAP_MAIN_PIN_SIZE.sizeWithPoint
     };
+
     return values;
   }
 
