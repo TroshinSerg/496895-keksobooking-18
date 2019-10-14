@@ -85,14 +85,14 @@
         y: MAP_MAIN_PIN.offsetTop - shift.y
       };
 
-      if (currentCoords.y >= limitDragArea.minY && currentCoords.y <= window.data.mapMaxY && currentCoords.x >= limitDragArea.minX && currentCoords.x <= limitDragArea.maxX) {
-
-        startCoords = {
-          x: moveEvt.clientX,
-          y: moveEvt.clientY
-        };
-
+      if (currentCoords.y >= limitDragArea.minY && currentCoords.y <= window.data.mapMaxY) {
+        startCoords.y = moveEvt.clientY;
         MAP_MAIN_PIN.style.top = currentCoords.y + 'px';
+        setAddressField(MAP_MAIN_PIN_SIZE.sizeWithPoint);
+      }
+
+      if (currentCoords.x >= limitDragArea.minX && currentCoords.x <= limitDragArea.maxX) {
+        startCoords.x = moveEvt.clientX;
         MAP_MAIN_PIN.style.left = currentCoords.x + 'px';
         setAddressField(MAP_MAIN_PIN_SIZE.sizeWithPoint);
       }
@@ -143,6 +143,7 @@
       maxX: area.offsetWidth - MAP_MAIN_PIN_SIZE.halfSize,
       minY: window.data.mapMinY - MAP_MAIN_PIN_SIZE.sizeWithPoint + MAP_MAIN_PIN_SIZE.sizeWithPoint
     };
+
     return values;
   }
 
